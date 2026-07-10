@@ -23,4 +23,27 @@ public class Graph {
     public void addEdge(int weight, Vertex[] vertices){
         this.edges.add(new Edge(weight, vertices));
     }
+    public void removeEdge(Edge edge){
+        edge.remove();
+    }
+    public void removeVertex(Vertex vertex){
+        ArrayList<Edge> edgesToRemove = vertex.getEdges();
+        this.vertices.remove(vertex.getNumber());
+        for (Edge edge : edgesToRemove){
+            edge.remove();
+        }
+    }
+    public void changeWeight(Edge edge, int weight){
+        edge.changeWeight(weight);
+    }
+    ArrayList<Edge> getEdges(){
+        return this.edges;
+    }
+    HashMap<Integer, Vertex> getVertices(){
+        return this.vertices;
+    }
+    public int getSize(){
+        return vertices.size();
+    }
+
 }

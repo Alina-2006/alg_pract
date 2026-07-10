@@ -4,15 +4,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class Edge {
-    Vertex[] vertexes;
+    Vertex[] vertices;
     int weight;
     char color;
     public Edge(int weight, Vertex[] vertexes) {
         this.weight = weight;
-        this.vertexes = vertexes;
-        this.vertexes[0].addEdge(this);
-        this.vertexes[1].addEdge(this);
+        this.vertices = vertexes;
+        this.vertices[0].addEdge(this);
+        this.vertices[1].addEdge(this);
         this.color = 'b';
+    }
+    public Vertex[] getVertices(){
+        return this.vertices;
     }
     public void changeWeight(int weight){
         this.weight = weight;
@@ -27,18 +30,18 @@ public class Edge {
         return this.color;
     }
     public void remove(){
-        this.vertexes[0].removeEdge(this);
-        this.vertexes[1].removeEdge(this);
+        this.vertices[0].removeEdge(this);
+        this.vertices[1].removeEdge(this);
     }
     public Vertex getOppositeVertex(Vertex vertex) {
-        if (vertex == this.vertexes[0]) {
-            return this.vertexes[1];
+        if (vertex == this.vertices[0]) {
+            return this.vertices[1];
         }
-        return  this.vertexes[0];
+        return  this.vertices[0];
     }
     public void save(String file_name) {
         try (FileWriter writer = new FileWriter(file_name)) {
-            writer.write("" + this.vertexes[0] + " " + this.vertexes[1] + " " + this.weight);
+            writer.write("" + this.vertices[0] + " " + this.vertices[1] + " " + this.weight);
         } catch (IOException e) {
             //нужно добавить текст ошибки
             return;
