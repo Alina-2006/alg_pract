@@ -9,6 +9,14 @@ public class Vertex {
         this.edges = new ArrayList<>();
         this.color = 'b';
     }
+    public int getNumber(){
+        return this.number;
+    }
+    public void uploadEdges(MinHeap heap){
+        for(Edge edge : this.edges){
+            heap.add(edge);
+        }
+    }
     public void addEdge(Edge edge){
         edges.add(edge);
     }
