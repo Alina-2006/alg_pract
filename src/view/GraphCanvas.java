@@ -2,11 +2,12 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
+import java.awt.event.*;
 
 public class GraphCanvas extends JPanel{
 
+    private Point lastMousePosition = null;
+    private boolean isPanning = false;
     private double scale = 1.0;
     private int offsetX = 0;
     private int offsetY = 0;
@@ -14,17 +15,49 @@ public class GraphCanvas extends JPanel{
     public GraphCanvas() {
         setBackground(Color.WHITE);
 
+        //Проверка на нажатие
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (SwingUtilities.isMiddleMouseButton(e)) {
+                    lastMousePosition = e.getPoint();
+                    isPanning = true;
+                    setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (SwingUtilities.isMiddleMouseButton(e)) {
+                    isPanning = false;
+                    setCursor(Cursor.getDefaultCursor());
+                }
+            }
+        });
+
+        //перетаскивание при зажатом колёсике
+        addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                if (isPanning) {
+                    int dx = e.getX() - lastMousePosition.x;
+                    int dy = e.getY() - lastMousePosition.y;
+                    offsetX += dx;
+                    offsetY += dy;
+                    lastMousePosition = e.getPoint();
+                    repaint();
+                }
+            }
+        });
+
+        //зум прокрутом колёсиком
         addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
-                if (e.isControlDown()) {
-                    if (e.getWheelRotation() < 0) {
-                        scale *= 1.1;
-                    } else {
-                        scale /= 1.1;
-                    }
+                if (e.getWheelRotation() < 0) {
+                    scale *= 1.1;
                 } else {
-                    offsetY -= e.getWheelRotation() * 20;
+                    scale /= 1.1;
                 }
                 repaint();
             }
