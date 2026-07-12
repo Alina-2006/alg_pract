@@ -144,7 +144,7 @@ public class Controller {
                       "Наумов Матвей — модуль ядра и алгоритма\n" +
                       "Попова Елизавета — пользовательский интерфейс\n" +
                       "Резяпова Алина — модуль управления и интеграции\n\n" +
-                      "Группа: ...";
+                      "Группа: 4343";
         JOptionPane.showMessageDialog(mainWindow, info, "О разработчиках", JOptionPane.INFORMATION_MESSAGE);
     }
 }
