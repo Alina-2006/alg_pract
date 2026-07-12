@@ -4,17 +4,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
-
-import  java.util.*;
+import java.util.*;
 import java.util.List;
 
 /**
  * Отрисовка графов
  **/
-
 public class GraphCanvas extends JPanel {
 
-    //масштаб и смещение
+    // масштаб и смещение
     private Point lastMousePosition = null;
     private boolean isPanning = false;
     private double scale = 1.0;
@@ -25,13 +23,13 @@ public class GraphCanvas extends JPanel {
     private List<VertexData> vertices = new ArrayList<>();
     private List<EdgeData> edges = new ArrayList<>();
 
-    // состояние алгоритмы (выделение цветом)
+    // состояние алгоритма (выделение цветом)
     private Set<Integer> visitedVertices = new HashSet<>();
     private Set<String> mstEdges = new HashSet<>();
     private String currentEdge = null;
     private Integer currentVertex = null;
 
-    //разммер вершин
+    // размер вершин
     private int vertexRadius = 25;
 
     public GraphCanvas() {
@@ -41,7 +39,7 @@ public class GraphCanvas extends JPanel {
 
     // функция для мыши
     private void initMouseHandlers() {
-        //Проверка на нажатие
+        // Проверка на нажатие
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -61,7 +59,7 @@ public class GraphCanvas extends JPanel {
             }
         });
 
-        //перетаскивание при зажатом колёсике
+        // перетаскивание при зажатом колёсике
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
@@ -76,7 +74,7 @@ public class GraphCanvas extends JPanel {
             }
         });
 
-        //зум прокрутом колёсиком
+        // зум прокрутом колёсиком
         addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
@@ -117,20 +115,19 @@ public class GraphCanvas extends JPanel {
         repaint();
     }
 
-    //отрисовка графа
+    // отрисовка графа
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
 
-        //сгллаживание
+        // сглаживание
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
 
         // применяем масштаб и смещение
         g2.translate(offsetX, offsetY);
         g2.scale(scale, scale);
-
 
         // Сначала рисуем рёбра (чтобы были под вершинами)
         drawEdges(g2);
@@ -210,20 +207,23 @@ public class GraphCanvas extends JPanel {
         return null;
     }
 
+    // === МЕТОДЫ ИЗ ВАШЕЙ ВЕРСИИ ===
+
     // Метод для передачи графа из ядра (если используется класс Graph)
     
-    /*public void setGraph(Graph graph) {
+    public void setGraph(Graph graph) {
         // Конвертируем Graph в VertexData и EdgeData
         if (graph != null) {
             this.vertices = graph.getVerticesAsData(); // предполагаемый метод
             this.edges = graph.getEdgesAsData();       // предполагаемый метод
             repaint();
         }
-    }*/
+    }
+    */
 
     // Альтернативный метод updateState, который принимает объект Step
-// (если есть такой класс в ядре)
-/*/
+    // TODO: Раскомментировать, когда стыковщик создаст класс Step
+    /*
     public void updateState(Step step) {
         if (step != null) {
             this.visitedVertices = step.getVisitedVertices();
@@ -232,7 +232,8 @@ public class GraphCanvas extends JPanel {
             this.currentEdge = step.getCurrentEdge();
             repaint();
         }
-    }*/
+    }
+    
 
     // Метод для получения информации о вершине по клику
     public VertexData getVertexAtPoint(int x, int y) {
@@ -292,6 +293,5 @@ public class GraphCanvas extends JPanel {
         double dx = px - xx;
         double dy = py - yy;
         return Math.sqrt(dx * dx + dy * dy) < tolerance;
-
     }
 }
