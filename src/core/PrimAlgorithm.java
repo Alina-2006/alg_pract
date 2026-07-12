@@ -8,12 +8,14 @@ public class PrimAlgorithm {
     MinHeap heap;
     Edge current_edge;
     Vertex current_vertex;
+    int mstLen;
 
     public PrimAlgorithm(Graph graph) {
         this.heap = new MinHeap();
         this.graph = graph;
         this.vertices = new HashMap<>();
         this.edges = new ArrayList<>();
+        this.mstLen = 0;
     }
 
     public void setNewVertex() {
@@ -56,6 +58,7 @@ public class PrimAlgorithm {
                     //В историю пойдёт запись о том, что мы добавили новое ребро и вершину
                     this.current_edge.setColor('r');
                     this.edges.add(current_edge);
+                    this.mstLen += this.current_edge.getWeight();
                     this.current_vertex = maybe_new_vertices[1];
                     this.setNewVertex();
                     return true;
@@ -64,10 +67,14 @@ public class PrimAlgorithm {
                 //В историю пойдёт запись о том, что мы добавили новое ребро и вершину
                 this.current_edge.setColor('r');
                 this.edges.add(current_edge);
+                this.mstLen += this.current_edge.getWeight();
                 this.current_vertex = maybe_new_vertices[0];
                 this.setNewVertex();
                 return true;
             }
         }
+    }
+    public int getMstLen(){
+        return mstLen;
     }
 }
