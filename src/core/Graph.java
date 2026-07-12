@@ -25,25 +25,36 @@ public class Graph {
     }
     public void removeEdge(Edge edge){
         edge.remove();
+        this.edges.remove(edge);
     }
     public void removeVertex(Vertex vertex){
-        ArrayList<Edge> edgesToRemove = vertex.getEdges();
+        ArrayList<Edge> edgesToRemove = new ArrayList<>(vertex.getEdges());
         this.vertices.remove(vertex.getNumber());
-        for (Edge edge : edgesToRemove){
+        for (Edge edge : edgesToRemove) {
             edge.remove();
+            this.edges.remove(edge);
         }
     }
     public void changeWeight(Edge edge, int weight){
         edge.changeWeight(weight);
     }
-    ArrayList<Edge> getEdges(){
+    public ArrayList<Edge> getEdges(){
         return this.edges;
     }
-    HashMap<Integer, Vertex> getVertices(){
+    public HashMap<Integer, Vertex> getVertices(){
         return this.vertices;
     }
     public int getSize(){
         return vertices.size();
     }
-
+    public void save(String file_name) {
+        try (java.io.FileWriter writer = new java.io.FileWriter(file_name)) {
+            for (Edge edge : this.edges) {
+                Vertex[] v = edge.getVertices();
+                writer.write(v[0].getNumber() + " " + v[1].getNumber() + " " + edge.getWeight() + "\n");
+            }
+        } catch (java.io.IOException e) {
+            //Выдаём ошибку, что сохранить не удалось
+        }
+    }
 }

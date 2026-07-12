@@ -39,12 +39,4 @@ public class Edge {
         }
         return  this.vertices[0];
     }
-    public void save(String file_name) {
-        try (FileWriter writer = new FileWriter(file_name)) {
-            writer.write("" + this.vertices[0] + " " + this.vertices[1] + " " + this.weight);
-        } catch (IOException e) {
-            //нужно добавить текст ошибки
-            return;
-        }
-    }
 }
