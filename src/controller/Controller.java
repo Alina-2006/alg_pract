@@ -40,6 +40,10 @@ public class Controller {
     }
 
     private void onAddEdge() {
+        if (graph == null) {
+            createEmptyGraph();
+        }
+
         int[] data = mainWindow.getToolbarPanel().showAddEdgeDialog();
         if (data != null) {
             try {
@@ -59,21 +63,25 @@ public class Controller {
     }
 
     private void onAddVertex() {
-    int[] data = mainWindow.getToolbarPanel().showAddVertexDialog();
-    if (data != null) {
-        try {
-            int id = data[0];
-            graph.addVertex(id);
-            convertGraphToData();
-            mainWindow.getGraphCanvas().setVertices(vertexDataList);
-            mainWindow.getGraphCanvas().setEdges(edgeDataList);
-            mainWindow.getGraphCanvas().repaint();  
-            mainWindow.showInfo("Вершина " + id + " добавлена");
-        } catch (Exception ex) {
-            mainWindow.showError("Ошибка добавления вершины: " + ex.getMessage());
+        if (graph == null) {
+            createEmptyGraph();
+        }
+
+        int[] data = mainWindow.getToolbarPanel().showAddVertexDialog();
+        if (data != null) {
+            try {
+                int id = data[0];
+                graph.addVertex(id);
+                convertGraphToData();
+                mainWindow.getGraphCanvas().setVertices(vertexDataList);
+                mainWindow.getGraphCanvas().setEdges(edgeDataList);
+                mainWindow.getGraphCanvas().repaint();  
+                mainWindow.showInfo("Вершина " + id + " добавлена");
+            } catch (Exception ex) {
+                mainWindow.showError("Ошибка добавления вершины: " + ex.getMessage());
+            }
         }
     }
-}
 
     public void loadGraphFromFile() {
         JFileChooser chooser = new JFileChooser();
@@ -95,6 +103,18 @@ public class Controller {
             } catch (Exception ex) {
                 mainWindow.showError("Ошибка загрузки: " + ex.getMessage());
             }
+        }
+    }
+
+    private void createEmptyGraph() {
+        if (graph == null) {
+            graph = new Graph(new ArrayList<>());
+            vertexDataList.clear();
+            edgeDataList.clear();
+            mainWindow.getGraphCanvas().setVertices(vertexDataList);
+            mainWindow.getGraphCanvas().setEdges(edgeDataList);
+            mainWindow.getGraphCanvas().repaint();
+            mainWindow.showInfo("Создан пустой граф");
         }
     }
 
@@ -123,7 +143,15 @@ public class Controller {
     }
 
     public void onStart() {
+        if (graph == null) {
+            mainWindow.showError("Сначала создайте или загрузите граф!");
+            return;
+        }
+
         try {
+            if (runner == null) {
+                runner = new Runner(graph);  // ← нужно добавить этот конструктор
+            }
             runner.run();
             algorithm = runner.getAlgorithm();
 

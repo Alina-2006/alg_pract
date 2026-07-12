@@ -59,4 +59,13 @@ public class Graph {
             //Выдаём ошибку, что сохранить не удалось
         }
     }
+
+    public void addEdge(int from, int to, int weight) {
+        Vertex v1 = vertices.get(from);
+        Vertex v2 = vertices.get(to);
+        if (v1 != null && v2 != null) {
+            Vertex[] toAdd = {v1, v2};
+            addEdge(weight, toAdd);
+        }
+    }
 }
