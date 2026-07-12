@@ -34,7 +34,46 @@ public class Controller {
         mainWindow.getMainMenuBar().getMenu(0).getItem(0).addActionListener(e -> loadGraphFromFile());
         // Меню "Сохранить"
         mainWindow.getMainMenuBar().getMenu(0).getItem(1).addActionListener(e -> saveResultToFile());
+        
+        mainWindow.getToolbarPanel().addAddVertexListener(e -> onAddVertex());
+        mainWindow.getToolbarPanel().addAddEdgeListener(e -> onAddEdge());
     }
+
+    private void onAddEdge() {
+        int[] data = mainWindow.getToolbarPanel().showAddEdgeDialog();
+        if (data != null) {
+            try {
+                int from = data[0];
+                int to = data[1];
+                int weight = data[2];
+                graph.addEdge(from, to, weight);
+                convertGraphToData();
+                mainWindow.getGraphCanvas().setVertices(vertexDataList);
+                mainWindow.getGraphCanvas().setEdges(edgeDataList);
+                mainWindow.getGraphCanvas().repaint();
+                mainWindow.showInfo("Ребро " + from + "-" + to + " (вес: " + weight + ") добавлено");
+            } catch (Exception ex) {
+                mainWindow.showError("Ошибка добавления ребра: " + ex.getMessage());
+            }
+        }
+    }
+
+    private void onAddVertex() {
+    int[] data = mainWindow.getToolbarPanel().showAddVertexDialog();
+    if (data != null) {
+        try {
+            int id = data[0];
+            graph.addVertex(id);
+            convertGraphToData();
+            mainWindow.getGraphCanvas().setVertices(vertexDataList);
+            mainWindow.getGraphCanvas().setEdges(edgeDataList);
+            mainWindow.getGraphCanvas().repaint();  
+            mainWindow.showInfo("Вершина " + id + " добавлена");
+        } catch (Exception ex) {
+            mainWindow.showError("Ошибка добавления вершины: " + ex.getMessage());
+        }
+    }
+}
 
     public void loadGraphFromFile() {
         JFileChooser chooser = new JFileChooser();
@@ -144,7 +183,8 @@ public class Controller {
                       "Наумов Матвей — модуль ядра и алгоритма\n" +
                       "Попова Елизавета — пользовательский интерфейс\n" +
                       "Резяпова Алина — модуль управления и интеграции\n\n" +
-                      "Группа: 4343";
+                      "Бригада: 8";
         JOptionPane.showMessageDialog(mainWindow, info, "О разработчиках", JOptionPane.INFORMATION_MESSAGE);
     }
+    
 }
