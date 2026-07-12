@@ -39,8 +39,5 @@ public class ToolbarPanel extends JPanel{
         button.setFont(new Font("Arial", Font.BOLD, 20));
         return button;
     }
-
-    public void add (){
-
-    }
+    
 }

@@ -2,6 +2,11 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
+
+/**
+ * Панель внизу, с кнопками для анимациии
+ **/
 
 public class BottomPanel extends JPanel {
 
@@ -18,12 +23,12 @@ public class BottomPanel extends JPanel {
 
         initButtons();
     }
-
+// Инициализация кнопок
     private void initButtons() {
-        btnStart = createButton("Play", Color.GREEN);
-        btnPrevStep = createButton("◀", Color.GREEN);
-        btnNextStep = createButton("▶", Color.GREEN);
-        btnReset = createButton("■", Color.RED);
+        btnStart = createButton("Запуск", Color.GREEN);
+        btnPrevStep = createButton("Назад", Color.GREEN);
+        btnNextStep = createButton("Вперёд", Color.GREEN);
+        btnReset = createButton("Сброс", Color.RED);
 
         add(btnStart);
         add(btnPrevStep);
@@ -50,4 +55,45 @@ public class BottomPanel extends JPanel {
         button.setPreferredSize(new Dimension(40, 35));
         return button;
     }
+
+    public void setButtonsState(boolean canStart, boolean canNext, boolean canPrev, boolean canReset) {
+        btnStart.setEnabled(canStart);
+        btnNextStep.setEnabled(canNext);
+        btnPrevStep.setEnabled(canPrev);
+        btnReset.setEnabled(canReset);
+    }
+
+    // Методы для добавления обработчиков событий
+    public void addStartListener(ActionListener listener) {
+        btnStart.addActionListener(listener);
+    }
+
+    public void addPrevStepListener(ActionListener listener) {
+        btnPrevStep.addActionListener(listener);
+    }
+
+    public void addNextStepListener(ActionListener listener) {
+        btnNextStep.addActionListener(listener);
+    }
+
+    public void addResetListener(ActionListener listener) {
+        btnReset.addActionListener(listener);
+    }
+
+    public void addHistoryListener(ActionListener listener) {
+        btnHistory.addActionListener(listener);
+    }
+
+    public void addAuthorsListener(ActionListener listener) {
+        btnAuthors.addActionListener(listener);
+    }
+
+    // Геттеры для кнопок (если понадобятся прямые ссылки)
+    public JButton getBtnStart() { return btnStart; }
+    public JButton getBtnPrevStep() { return btnPrevStep; }
+    public JButton getBtnNextStep() { return btnNextStep; }
+    public JButton getBtnReset() { return btnReset; }
+    public JButton getBtnHistory() { return btnHistory; }
+    public JButton getBtnAuthors() { return btnAuthors; }
 }
+

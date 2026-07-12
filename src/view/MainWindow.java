@@ -9,6 +9,7 @@ public class MainWindow extends JFrame {
     private GraphCanvas graphCanvas;
     private  ToolbarPanel toolbarPanel;
     private  BottomPanel bottomPanel;
+    private HistoryPanel historyPanel;
 
     public MainWindow(){
         setTitle("Алгоритм Прима");
@@ -24,8 +25,11 @@ public class MainWindow extends JFrame {
         menuBar = new JMenuBar();
 
         JMenu fileMenu = new JMenu("Файл");
-        fileMenu.add(new JMenuItem("Открыть"));
-        fileMenu.add(new JMenuItem("Сохранить"));
+        JMenuItem openItem = new JMenuItem("Открыть");
+        JMenuItem saveItem = new JMenuItem("Сохранить");
+
+        fileMenu.add(openItem);
+        fileMenu.add(saveItem);
         menuBar.add(fileMenu);
 
         setJMenuBar(menuBar);
@@ -45,5 +49,56 @@ public class MainWindow extends JFrame {
         //Панель управления анимацией снизу
         bottomPanel = new BottomPanel();
         add(bottomPanel, BorderLayout.SOUTH);
+    }
+    // Метод для показа ошибок
+    public void showError(String message) {
+        JOptionPane.showMessageDialog(this,
+                message,
+                "Ошибка",
+                JOptionPane.ERROR_MESSAGE);
+    }
+
+    // Метод для показа предупреждений
+    public void showWarning(String message) {
+        JOptionPane.showMessageDialog(this,
+                message,
+                "Предупреждение",
+                JOptionPane.WARNING_MESSAGE);
+    }
+
+    // Метод для показа информационных сообщений
+    public void showInfo(String message) {
+        JOptionPane.showMessageDialog(this,
+                message,
+                "Информация",
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // геттеры для панелей
+
+    public GraphCanvas getGraphCanvas() {
+        return graphCanvas;
+    }
+
+    public ToolbarPanel getToolbarPanel() {
+        return toolbarPanel;
+    }
+
+    public BottomPanel getBottomPanel() {
+        return bottomPanel;
+    }
+
+    public HistoryPanel getHistoryPanel() {
+        return historyPanel;
+    }
+
+    // Геттеры для меню (если понадобятся)
+    public JMenuBar getMenuBar() {
+        return menuBar;
+    }
+
+    // Метод для установки истории
+    public void setHistoryPanel(HistoryPanel historyPanel) {
+        this.historyPanel = historyPanel;
     }
 }
