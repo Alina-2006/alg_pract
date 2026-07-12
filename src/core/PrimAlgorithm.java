@@ -1,3 +1,5 @@
+package core;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -76,5 +78,9 @@ public class PrimAlgorithm {
     }
     public int getMstLen(){
         return mstLen;
+    }
+
+    public ArrayList<Edge> getMSTEdges() {
+        return this.edges;  // это рёбра, вошедшие в МОД
     }
 }

@@ -1,3 +1,5 @@
+package core;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -36,5 +38,9 @@ public class Runner {
     public void run(){
         this.algorithm.start();
         while(this.algorithm.nextStep()){}
+    }
+
+    public PrimAlgorithm getAlgorithm() {
+        return algorithm;
     }
 }

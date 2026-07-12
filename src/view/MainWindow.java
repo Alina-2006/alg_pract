@@ -93,7 +93,7 @@ public class MainWindow extends JFrame {
     }
 
     // Геттеры для меню (если понадобятся)
-    public JMenuBar getMenuBar() {
+    public JMenuBar getMainMenuBar() {
         return menuBar;
     }
 

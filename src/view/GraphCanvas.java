@@ -211,17 +211,19 @@ public class GraphCanvas extends JPanel {
     }
 
     // Метод для передачи графа из ядра (если используется класс Graph)
-    public void setGraph(Graph graph) {
+    
+    /*public void setGraph(Graph graph) {
         // Конвертируем Graph в VertexData и EdgeData
         if (graph != null) {
             this.vertices = graph.getVerticesAsData(); // предполагаемый метод
             this.edges = graph.getEdgesAsData();       // предполагаемый метод
             repaint();
         }
-    }
+    }*/
 
     // Альтернативный метод updateState, который принимает объект Step
 // (если есть такой класс в ядре)
+/*/
     public void updateState(Step step) {
         if (step != null) {
             this.visitedVertices = step.getVisitedVertices();
@@ -230,7 +232,7 @@ public class GraphCanvas extends JPanel {
             this.currentEdge = step.getCurrentEdge();
             repaint();
         }
-    }
+    }*/
 
     // Метод для получения информации о вершине по клику
     public VertexData getVertexAtPoint(int x, int y) {
@@ -292,3 +294,4 @@ public class GraphCanvas extends JPanel {
         return Math.sqrt(dx * dx + dy * dy) < tolerance;
 
     }
+}

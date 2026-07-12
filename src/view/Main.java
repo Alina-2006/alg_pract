@@ -1,12 +1,12 @@
 package view;
 
+import controller.Controller;
 import javax.swing.*;
 
 public class Main {
-    public static void main(String[] args){
+    public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            MainWindow window = new MainWindow();
-            window.setVisible(true);
+            new Controller();  // ← здесь создаётся Controller
         });
     }
 }
