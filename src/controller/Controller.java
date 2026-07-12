@@ -186,3 +186,4 @@ public class Controller {
                       "Бригада: 8";
         JOptionPane.showMessageDialog(mainWindow, info, "О разработчиках", JOptionPane.INFORMATION_MESSAGE);
     }
+}
