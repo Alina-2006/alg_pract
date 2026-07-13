@@ -23,14 +23,14 @@ public class BottomPanel extends JPanel {
 
         initButtons();
     }
-// Инициализация кнопок
+    // Инициализация кнопок
     private void initButtons() {
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-        btnStart = createButton("Запуск", Color.GREEN);
-        btnPrevStep = createButton("Назад", Color.GREEN);
-        btnNextStep = createButton("Вперёд", Color.GREEN);
-        btnReset = createButton("Сброс", Color.RED);
+        btnStart = createButton("▶", Color.GREEN);
+        btnPrevStep = createButton("◀", Color.GREEN);
+        btnNextStep = createButton("▶", Color.GREEN);
+        btnReset = createButton("⏹", Color.RED);
 
         leftPanel.add(btnStart);
         leftPanel.add(btnPrevStep);

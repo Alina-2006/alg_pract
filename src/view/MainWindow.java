@@ -50,44 +50,32 @@ public class MainWindow extends JFrame {
         bottomPanel = new BottomPanel();
         add(bottomPanel, BorderLayout.SOUTH);
     }
+
     // Метод для показа ошибок
     public void showError(String message) {
-        JOptionPane.showMessageDialog(this,
-                message,
-                "Ошибка",
-                JOptionPane.ERROR_MESSAGE);
+        ToastNotification.showError(SwingUtilities.getWindowAncestor(this), message);
     }
 
     // Метод для показа предупреждений
     public void showWarning(String message) {
-        JOptionPane.showMessageDialog(this,
-                message,
-                "Предупреждение",
-                JOptionPane.WARNING_MESSAGE);
+        ToastNotification.showQuestion(SwingUtilities.getWindowAncestor(this), message);
     }
 
     // Метод для показа информационных сообщений
     public void showInfo(String message) {
-        JOptionPane.showMessageDialog(this,
-                message,
-                "Информация",
-                JOptionPane.INFORMATION_MESSAGE);
+        ToastNotification.showInformation(SwingUtilities.getWindowAncestor(this), message);
     }
 
     // геттеры для панелей
-
     public GraphCanvas getGraphCanvas() {
         return graphCanvas;
     }
-
     public ToolbarPanel getToolbarPanel() {
         return toolbarPanel;
     }
-
     public BottomPanel getBottomPanel() {
         return bottomPanel;
     }
-
     public HistoryPanel getHistoryPanel() {
         return historyPanel;
     }
