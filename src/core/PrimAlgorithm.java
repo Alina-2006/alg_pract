@@ -4,57 +4,63 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PrimAlgorithm {
-    HashMap<Integer, Vertex> vertices;
+    HashMap<Integer, Vertex> mstVertices;
+    ArrayList<Integer> verticesHistory;
+    ArrayList<MinHeap> heapHistory;
     ArrayList<Edge> mstEdges;
     ArrayList<String> history;
     Graph graph;
     MinHeap heap;
-    Edge current_edge;
-    Vertex current_vertex;
+    Edge currentEdge;
+    Vertex currentVertex;
     int mstLen;
 
     public PrimAlgorithm(Graph graph) {
         this.heap = new MinHeap();
         this.graph = graph;
-        this.vertices = new HashMap<>();
+        this.mstVertices = new HashMap<>();
         this.mstEdges = new ArrayList<>();
         this.mstLen = 0;
         this.history = new ArrayList<>();
+        this.heapHistory = new ArrayList<>();
+        this.verticesHistory = new ArrayList<>();
     }
 
     public void setNewVertex() {
-        this.current_vertex.setColor('r');
-        this.vertices.put(this.current_vertex.getNumber(), this.current_vertex);
-        this.current_vertex.uploadEdges(this.heap);
+        this.currentVertex.setColor('r');
+        this.verticesHistory.add(this.currentVertex.getNumber());
+        this.mstVertices.put(this.currentVertex.getNumber(), this.currentVertex);
+        this.currentVertex.uploadEdges(this.heap);
     }
 
     public void start() {
-        this.current_edge = null;
-        this.current_vertex = this.graph.getVertices().values().iterator().next();
+        this.currentEdge = null;
+        this.currentVertex = this.graph.getVertices().values().iterator().next();
         setNewVertex();
     }
 
     //Вернёт true, если есть смысл продолжать шаги и
     // false, если продолжать их бессмысленно (дерево построено или возникла ошибка)
     public boolean nextStep() {
-        this.current_vertex.setColor('g');
-        if (this.current_edge != null) {
-            this.current_edge.setColor('g');
+        this.currentVertex.setColor('g');
+        if (this.currentEdge != null) {
+            this.currentEdge.setColor('g');
         }
-        if (this.vertices.size() == graph.getSize()) {
-            this.history.add("Минимальное остовное дерево построено, алгоритм завршён");
+        if (this.mstVertices.size() == graph.getSize()) {
+            this.history.add("Минимальное остовное дерево построено, алгоритм завершён");
             return false;
         }
 
+        this.heapHistory.add(this.heap.copy());
         while (true) {
-            this.current_edge = this.heap.pop();
-            if (this.current_edge == null) {
+            this.currentEdge = this.heap.pop();
+            if (this.currentEdge == null) {
                 //Тут необходимо выдать ошибку, потому что получается, что граф несвязный
                 return false;
             }
-            Vertex[] maybe_new_vertices = this.current_edge.getVertices();
-            if (this.vertices.containsKey(maybe_new_vertices[0].getNumber())) {
-                if (this.vertices.containsKey(maybe_new_vertices[1].getNumber())) {
+            Vertex[] maybe_new_vertices = this.currentEdge.getVertices();
+            if (this.mstVertices.containsKey(maybe_new_vertices[0].getNumber())) {
+                if (this.mstVertices.containsKey(maybe_new_vertices[1].getNumber())) {
                     this.history.add("Мы начали рассматривать ребро, соединяющее вершины " +
                             maybe_new_vertices[0].getNumber() + " и " + maybe_new_vertices[1].getNumber() + ",  но " +
                             "не стали добавлять это ребро, так как обе вершины уже есть в дереве");
@@ -63,10 +69,10 @@ public class PrimAlgorithm {
                             maybe_new_vertices[0].getNumber() + " и " + maybe_new_vertices[1].getNumber() +
                             "и добавили это ребро, теперь к минимальному остовному дереву добавилась вершина " +
                             maybe_new_vertices[1].getNumber());
-                    this.current_edge.setColor('r');
-                    this.mstEdges.add(current_edge);
-                    this.mstLen += this.current_edge.getWeight();
-                    this.current_vertex = maybe_new_vertices[1];
+                    this.currentEdge.setColor('r');
+                    this.mstEdges.add(currentEdge);
+                    this.mstLen += this.currentEdge.getWeight();
+                    this.currentVertex = maybe_new_vertices[1];
                     this.setNewVertex();
                     return true;
                 }
@@ -75,13 +81,37 @@ public class PrimAlgorithm {
                         maybe_new_vertices[0].getNumber() + " и " + maybe_new_vertices[1].getNumber() +
                         "и добавили это ребро, теперь к минимальному остовному дереву добавилась вершина " +
                         maybe_new_vertices[0].getNumber());
-                this.current_edge.setColor('r');
-                this.mstEdges.add(current_edge);
-                this.mstLen += this.current_edge.getWeight();
-                this.current_vertex = maybe_new_vertices[0];
+                this.currentEdge.setColor('r');
+                this.mstEdges.add(currentEdge);
+                this.mstLen += this.currentEdge.getWeight();
+                this.currentVertex = maybe_new_vertices[0];
                 this.setNewVertex();
                 return true;
             }
+        }
+    }
+
+    public void prevStep(){
+        if(heapHistory.isEmpty()){
+            //Выдаём, что нельзя откатить, так как мы ещё не делали шагов
+            return;
+        }
+        this.heap = this.heapHistory.getLast();
+        System.out.printf("\n%s\n", this.heap.heap.toString());
+        this.heapHistory.removeLast();
+        this.mstEdges.getLast().setColor('b');
+        this.mstLen -= this.mstEdges.getLast().getWeight();
+        this.history.add("Откатили алгоритм на шаг назад, теперь вершина " + this.currentVertex.getNumber() + " и " +
+                "соединяющее её ребро больше не принадлежат дереву");
+        this.mstEdges.removeLast();
+        this.mstVertices.get(this.verticesHistory.getLast()).setColor('b');
+        this.mstVertices.remove(this.verticesHistory.getLast());
+        this.verticesHistory.removeLast();
+        this.mstVertices.get(this.verticesHistory.getLast()).setColor('r');
+        this.currentVertex = this.mstVertices.get(this.verticesHistory.getLast());
+        if(!this.mstEdges.isEmpty()){
+            this.mstEdges.getLast().setColor('r');
+            this.currentEdge = this.mstEdges.getLast();
         }
     }
 
@@ -90,7 +120,7 @@ public class PrimAlgorithm {
     }
 
     public ArrayList<Edge> getMSTEdges() {
-        return this.mstEdges;  // это рёбра, вошедшие в МОД
+        return this.mstEdges;
     }
 
     public ArrayList<String> getHistory() {

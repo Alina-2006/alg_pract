@@ -9,6 +9,10 @@ public class MinHeap {
         this.heap = new ArrayList<>();
     }
 
+    public MinHeap(ArrayList<Edge> edges){
+        this.heap = new ArrayList<>(edges);
+    }
+
     public void add(Edge new_edge){
         this.heap.addLast(new_edge);
         int i = this.heap.size() - 1;
@@ -54,5 +58,10 @@ public class MinHeap {
             }
         }
         return ret;
+    }
+
+    public MinHeap copy(){
+        MinHeap newHeap = new MinHeap(this.heap);
+        return newHeap;
     }
 }
