@@ -55,9 +55,9 @@ public class Controller {
                 mainWindow.getGraphCanvas().setVertices(vertexDataList);
                 mainWindow.getGraphCanvas().setEdges(edgeDataList);
                 mainWindow.getGraphCanvas().repaint();
-                mainWindow.showInfo("Ребро " + from + "-" + to + " (вес: " + weight + ") добавлено");
+                ToastNotification.showSuccess(mainWindow,"Ребро " + from + "-" + to + " (вес: " + weight + ") добавлено");
             } catch (Exception ex) {
-                mainWindow.showError("Ошибка добавления ребра: " + ex.getMessage());
+                ToastNotification.showError(mainWindow, "Ошибка добавления ребра: " + ex.getMessage());
             }
         }
     }
@@ -75,10 +75,10 @@ public class Controller {
                 convertGraphToData();
                 mainWindow.getGraphCanvas().setVertices(vertexDataList);
                 mainWindow.getGraphCanvas().setEdges(edgeDataList);
-                mainWindow.getGraphCanvas().repaint();  
-                mainWindow.showInfo("Вершина " + id + " добавлена");
+                mainWindow.getGraphCanvas().repaint();
+                ToastNotification.showSuccess(mainWindow,"Вершина " + id + " добавлена");
             } catch (Exception ex) {
-                mainWindow.showError("Ошибка добавления вершины: " + ex.getMessage());
+                ToastNotification.showError(mainWindow,"Ошибка добавления вершины: " + ex.getMessage());
             }
         }
     }
@@ -97,11 +97,11 @@ public class Controller {
                 mainWindow.getGraphCanvas().setEdges(edgeDataList);
                 mainWindow.getGraphCanvas().reset();
 
-                mainWindow.showInfo("Граф загружен: " + file.getName());
+                ToastNotification.showInformation(mainWindow, "Граф загружен: " + file.getName());
                 mainWindow.getBottomPanel().setButtonsState(true, false, false, true);
 
             } catch (Exception ex) {
-                mainWindow.showError("Ошибка загрузки: " + ex.getMessage());
+                ToastNotification.showError(mainWindow, "Ошибка загрузки: " + ex.getMessage());
             }
         }
     }
@@ -114,7 +114,7 @@ public class Controller {
             mainWindow.getGraphCanvas().setVertices(vertexDataList);
             mainWindow.getGraphCanvas().setEdges(edgeDataList);
             mainWindow.getGraphCanvas().repaint();
-            mainWindow.showInfo("Создан пустой граф");
+            ToastNotification.showInformation(mainWindow, "Создан пустой граф");
         }
     }
 
@@ -144,7 +144,7 @@ public class Controller {
 
     public void onStart() {
         if (graph == null) {
-            mainWindow.showError("Сначала создайте или загрузите граф!");
+            ToastNotification.showError(mainWindow,"Сначала создайте или загрузите граф!");
             return;
         }
 
@@ -172,26 +172,26 @@ public class Controller {
                 null                       // currentEdge
             );
 
-            mainWindow.showInfo("Алгоритм завершён! Вес МОД: " + algorithm.getMstLen());
+            ToastNotification.showInformation(mainWindow, "Алгоритм завершён! Вес МОД: " + algorithm.getMstLen());
             mainWindow.getBottomPanel().setButtonsState(false, false, false, true);
 
         } catch (Exception ex) {
-            mainWindow.showError("Ошибка выполнения: " + ex.getMessage());
+            ToastNotification.showError(mainWindow, "Ошибка выполнения: " + ex.getMessage());
         }
     }
 
     public void onNextStep() {
-        mainWindow.showInfo("Бета-версия: пошаговый режим будет позже");
+        ToastNotification.showInformation(mainWindow, "Бета-версия: пошаговый режим будет позже");
     }
 
     public void onPrevStep() {
-        mainWindow.showInfo("Финальная версия: шаг назад будет позже");
+        ToastNotification.showInformation(mainWindow,"Финальная версия: шаг назад будет позже");
     }
 
     public void onReset() {
         mainWindow.getGraphCanvas().reset();
         mainWindow.getBottomPanel().setButtonsState(true, false, false, true);
-        mainWindow.showInfo("Сброшено");
+        ToastNotification.showInformation(mainWindow,"Сброшено");
     }
 
     public void saveResultToFile() {
@@ -199,9 +199,9 @@ public class Controller {
         if (chooser.showSaveDialog(mainWindow) == JFileChooser.APPROVE_OPTION) {
             try {
                 graph.save(chooser.getSelectedFile().getAbsolutePath());
-                mainWindow.showInfo("Результат сохранён");
+                ToastNotification.showInformation(mainWindow,"Результат сохранён");
             } catch (Exception ex) {
-                mainWindow.showError("Ошибка сохранения: " + ex.getMessage());
+                ToastNotification.showError(mainWindow,"Ошибка сохранения: " + ex.getMessage());
             }
         }
     }
