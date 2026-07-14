@@ -34,6 +34,7 @@ public class GraphCanvas extends JPanel {
     // размер вершин
     private int vertexRadius = 25;
 
+
     //интерфейс для создания вершин по клику
     public interface VertexCreateListener {
         void onVertexCreateRequested(int x, int y);
@@ -44,6 +45,7 @@ public class GraphCanvas extends JPanel {
     public void addVertexCreateListener(VertexCreateListener listener) {
         this.vertexCreateListener = listener;
     }
+
 
     // Для выбора вершины при создании ребра
     public interface EdgeCreateListener {
@@ -77,6 +79,16 @@ public class GraphCanvas extends JPanel {
         this.canvasClickListener = listener;
     }
 
+    public interface EdgeWeightEditListener {
+        void onEdgeWeightEditRequested(int from, int to, int currentWeight);
+    }
+
+    private EdgeWeightEditListener edgeWeightEditListener;
+
+    public void addEdgeWeightEditListener(EdgeWeightEditListener listener) {
+        this.edgeWeightEditListener = listener;
+    }
+
     public GraphCanvas() {
         setBackground(Color.WHITE);
         initMouseHandlers();
@@ -84,8 +96,32 @@ public class GraphCanvas extends JPanel {
 
     // функция для мыши
     private void initMouseHandlers() {
+
         // Проверка на нажатие
         addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // Проверяем, что это двойной клик левой кнопкой
+                if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+                    // Вычисляем координаты с учётом зума и смещения
+                    int graphX = (int) ((e.getX() - offsetX) / scale);
+                    int graphY = (int) ((e.getY() - offsetY) / scale);
+
+                    // Ищем ребро рядом с точкой клика
+                    EdgeData clickedEdge = getEdgeAtPoint(graphX, graphY);
+
+                    // Если ребро найдено и есть слушатель — вызываем его
+                    if (clickedEdge != null) {
+                        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                        setToolTipText("Ребро " + clickedEdge.getFrom() + "→" +
+                                clickedEdge.getTo() + " (вес: " +
+                                clickedEdge.getWeight() + "). Двойной клик для редактирования");
+                    } else {
+                        setCursor(Cursor.getDefaultCursor());
+                        setToolTipText(null);
+                    }
+                }
+            }
 
             @Override
             public void mousePressed(MouseEvent e) {
@@ -207,8 +243,18 @@ public class GraphCanvas extends JPanel {
 
     private VertexData findVertex(int id) {
         for (VertexData vertex : vertices) {
-            double dx = vertex.getX() - x;
-            double dy = vertex.getY() - y;
+            if (vertex.getId() == id) {  // ✅ Ищем по ID
+                return vertex;
+            }
+        }
+        return null;
+    }
+
+    // метод для получения информации о вершине по клику
+    public VertexData getVertexAtPoint(int pointX, int pointY) {
+        for (VertexData vertex : vertices) {
+            double dx = vertex.getX() - pointX;
+            double dy = vertex.getY() - pointY;
             double distance = Math.sqrt(dx * dx + dy * dy);
             if (distance <= vertexRadius) {
                 return vertex;
@@ -217,29 +263,15 @@ public class GraphCanvas extends JPanel {
         return null;
     }
 
-    // метод для получения информации о вершине по клику
-    public VertexData getVertexAtPoint(int x, int y) {
-        for (EdgeData edge : edges) {
-            VertexData v1 = findVertex(edge.getFrom());
-            VertexData v2 = findVertex(edge.getTo());
-            if (v1 != null && v2 != null) {
-                if (isPointNearLine(x, y, v1.getX(), v1.getY(), v2.getX(), v2.getY(), 10)) {
-                    return edge;
-                }
-            }
-        }
-        return null;
-    }
-
     // Метод для получения информации о ребре по клику
-    public EdgeData getEdgeAtPoint(int x, int y) {
+    public EdgeData getEdgeAtPoint(int pointX, int pointY) {
         // Упрощенная проверка - можно улучшить
         for (EdgeData edge : edges) {
             VertexData v1 = findVertex(edge.getFrom());
             VertexData v2 = findVertex(edge.getTo());
             if (v1 != null && v2 != null) {
                 // Проверяем, находится ли точка близко к линии
-                if (isPointNearLine(x, y, v1.getX(), v1.getY(), v2.getX(), v2.getY(), 10)) {
+                if (isPointNearLine(pointX, pointY, v1.getX(), v1.getY(), v2.getX(), v2.getY(), 10)) {
                     return edge;
                 }
             }
@@ -270,13 +302,6 @@ public class GraphCanvas extends JPanel {
         double dx = px - xx;
         double dy = py - yy;
         return Math.sqrt(dx * dx + dy * dy) < tolerance;
-    }
-
-    private VertexData findVertex(int id) {
-        for (VertexData v : vertices) {
-            if (v.getId() == id) return v;
-        }
-        return null;
     }
 
     // отрисовка графа

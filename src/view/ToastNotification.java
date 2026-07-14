@@ -92,7 +92,7 @@ public class ToastNotification {
         return UIManager.getIcon(key);
     }
 
-    // === Удобные методы-обертки ===
+    //Методы-обертки
 
     public static void showError(Window owner, String message) {
         show(owner, message, JOptionPane.ERROR_MESSAGE);

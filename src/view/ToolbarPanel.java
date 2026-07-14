@@ -31,10 +31,10 @@ public class ToolbarPanel extends JPanel{
     }
 
     private void initButtons() {
-        btnAddVertex = createToolButton("⊕");
+        btnAddVertex = createToolButton("B");
         btnAddEdge = createToolButton("─");
-        btnEraser = createToolButton("✕");
-        btnClearAll = createToolButton("⌫");
+        btnEraser = createToolButton("E");
+        btnClearAll = createToolButton("C");
 
         // подсветка режима
         btnEraser.addActionListener(e -> {
@@ -113,7 +113,7 @@ public class ToolbarPanel extends JPanel{
         return isEraserMode;
     }
 
-    //етоды для раюоты с выбранными вершинами
+    //методы для работы с выбранными вершинами
     public Integer getSelectedVertexForEdge() {
         return selectedVertexForEdge;
     }
@@ -169,10 +169,10 @@ public class ToolbarPanel extends JPanel{
         if (result == JOptionPane.OK_OPTION) {
             try {
                 int id = Integer.parseInt(idField.getText().trim());
-                //ToastNotification.showSuccess(parentWindow, "Вершина" + id + "добавлена;>");
+                ToastNotification.showSuccess(parentWindow, "Вершина" + id + "добавлена;>");
                 return new int[]{id};
             } catch (NumberFormatException e) {
-                //ToastNotification.showError(parentWindow, "Введите корректное число!");
+                ToastNotification.showError(parentWindow, "Введите корректное число!");
                 return null;
             }
         }
