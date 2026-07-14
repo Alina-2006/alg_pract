@@ -5,7 +5,8 @@ import java.util.HashMap;
 
 public class PrimAlgorithm {
     HashMap<Integer, Vertex> vertices;
-    ArrayList<Edge> edges;
+    ArrayList<Edge> mstEdges;
+    ArrayList<String> history;
     Graph graph;
     MinHeap heap;
     Edge current_edge;
@@ -16,8 +17,9 @@ public class PrimAlgorithm {
         this.heap = new MinHeap();
         this.graph = graph;
         this.vertices = new HashMap<>();
-        this.edges = new ArrayList<>();
+        this.mstEdges = new ArrayList<>();
         this.mstLen = 0;
+        this.history = new ArrayList<>();
     }
 
     public void setNewVertex() {
@@ -39,8 +41,8 @@ public class PrimAlgorithm {
         if (this.current_edge != null) {
             this.current_edge.setColor('g');
         }
-        if (this.vertices.size() == graph.getSize()){
-            //Пишем о том, что дерево построено и алгоритм завершён
+        if (this.vertices.size() == graph.getSize()) {
+            this.history.add("Минимальное остовное дерево построено, алгоритм завршён");
             return false;
         }
 
@@ -53,22 +55,28 @@ public class PrimAlgorithm {
             Vertex[] maybe_new_vertices = this.current_edge.getVertices();
             if (this.vertices.containsKey(maybe_new_vertices[0].getNumber())) {
                 if (this.vertices.containsKey(maybe_new_vertices[1].getNumber())) {
-                    //Тут в историю пойдёт запись о том, что мы начали рассматривать ребро, но оно
-                    // не подошло, потому что не расширяло дерево, а создавало цикл
-                }
-                else {
-                    //В историю пойдёт запись о том, что мы добавили новое ребро и вершину
+                    this.history.add("Мы начали рассматривать ребро, соединяющее вершины " +
+                            maybe_new_vertices[0].getNumber() + " и " + maybe_new_vertices[1].getNumber() + ",  но " +
+                            "не стали добавлять это ребро, так как обе вершины уже есть в дереве");
+                } else {
+                    this.history.add("Мы начали рассматривать ребро, соединяющее вершины " +
+                            maybe_new_vertices[0].getNumber() + " и " + maybe_new_vertices[1].getNumber() +
+                            "и добавили это ребро, теперь к минимальному остовному дереву добавилась вершина " +
+                            maybe_new_vertices[1].getNumber());
                     this.current_edge.setColor('r');
-                    this.edges.add(current_edge);
+                    this.mstEdges.add(current_edge);
                     this.mstLen += this.current_edge.getWeight();
                     this.current_vertex = maybe_new_vertices[1];
                     this.setNewVertex();
                     return true;
                 }
             } else {
-                //В историю пойдёт запись о том, что мы добавили новое ребро и вершину
+                this.history.add("Мы начали рассматривать ребро, соединяющее вершины " +
+                        maybe_new_vertices[0].getNumber() + " и " + maybe_new_vertices[1].getNumber() +
+                        "и добавили это ребро, теперь к минимальному остовному дереву добавилась вершина " +
+                        maybe_new_vertices[0].getNumber());
                 this.current_edge.setColor('r');
-                this.edges.add(current_edge);
+                this.mstEdges.add(current_edge);
                 this.mstLen += this.current_edge.getWeight();
                 this.current_vertex = maybe_new_vertices[0];
                 this.setNewVertex();
@@ -76,11 +84,28 @@ public class PrimAlgorithm {
             }
         }
     }
-    public int getMstLen(){
+
+    public int getMstLen() {
         return mstLen;
     }
 
     public ArrayList<Edge> getMSTEdges() {
-        return this.edges;  // это рёбра, вошедшие в МОД
+        return this.mstEdges;  // это рёбра, вошедшие в МОД
+    }
+
+    public ArrayList<String> getHistory() {
+        return this.history;
+    }
+
+    public void saveResult(String file_name) {
+        try (java.io.FileWriter writer = new java.io.FileWriter(file_name)) {
+            for (Edge edge : this.mstEdges) {
+                Vertex[] v = edge.getVertices();
+                writer.write(v[0].getNumber() + " " + v[1].getNumber() + " " + edge.getWeight() + "\n");
+            }
+            writer.write(this.mstLen + "\n");
+        } catch (java.io.IOException e) {
+            //Выдаём ошибку, что сохранить не удалось
+        }
     }
 }
