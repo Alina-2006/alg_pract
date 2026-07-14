@@ -1,3 +1,6 @@
+package core;
+
+import java.awt.GradientPaint;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -30,11 +33,21 @@ public class Runner {
         this.graph = new Graph(edges);
         this.algorithm = new PrimAlgorithm(this.graph);
     }
+
+    public Runner(Graph graph) {
+        this.graph = graph;
+        this.algorithm = new PrimAlgorithm(this.graph);
+    }
+
     public Graph getGraph(){
         return this.graph;
     }
     public void run(){
         this.algorithm.start();
         while(this.algorithm.nextStep()){}
+    }
+
+    public PrimAlgorithm getAlgorithm() {
+        return algorithm;
     }
 }
