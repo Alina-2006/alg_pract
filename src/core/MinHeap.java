@@ -1,3 +1,5 @@
+package core;
+
 import java.util.ArrayList;
 
 public class MinHeap {
@@ -5,6 +7,10 @@ public class MinHeap {
 
     public MinHeap() {
         this.heap = new ArrayList<>();
+    }
+
+    public MinHeap(ArrayList<Edge> edges){
+        this.heap = new ArrayList<>(edges);
     }
 
     public void add(Edge new_edge){
@@ -52,5 +58,10 @@ public class MinHeap {
             }
         }
         return ret;
+    }
+
+    public MinHeap copy(){
+        MinHeap newHeap = new MinHeap(this.heap);
+        return newHeap;
     }
 }
