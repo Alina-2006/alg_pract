@@ -4,8 +4,14 @@ import core.*;
 import view.*;
 
 import javax.swing.*;
+
 import java.io.File;
 import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Controller {
     private MainWindow mainWindow;
@@ -23,20 +29,264 @@ public class Controller {
 
     private void setupListeners() {
         BottomPanel bottom = mainWindow.getBottomPanel();
+        ToolbarPanel toolbar = mainWindow.getToolbarPanel();
 
         bottom.addStartListener(e -> onStart());
         bottom.addNextStepListener(e -> onNextStep());
         bottom.addPrevStepListener(e -> onPrevStep());
         bottom.addResetListener(e -> onReset());
         bottom.addAuthorsListener(e -> showAuthors());
+        bottom.addHistoryListener(e -> toggleHistoryPanel());
 
-        // Меню "Открыть"
         mainWindow.getMainMenuBar().getMenu(0).getItem(0).addActionListener(e -> loadGraphFromFile());
-        // Меню "Сохранить"
         mainWindow.getMainMenuBar().getMenu(0).getItem(1).addActionListener(e -> saveResultToFile());
-        
-        mainWindow.getToolbarPanel().addAddVertexListener(e -> onAddVertex());
-        mainWindow.getToolbarPanel().addAddEdgeListener(e -> onAddEdge());
+
+        // клики
+        JButton btnAddVertex = mainWindow.getToolbarPanel().getBtnAddVertex();
+        btnAddVertex.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    // Двойной клик — диалог
+                    onAddVertex();
+                } else if (e.getClickCount() == 1) {
+                    // Одиночный клик — переключаем режим
+                    toolbar.toggleAddVertexMode();
+                    if (toolbar.isAddVertexMode()) {
+                        toolbar.setAddEdgeMode(false);
+                        toolbar.setEraserMode(false);
+                        ToastNotification.showInformation(mainWindow, 
+                            "Режим добавления вершин. Кликните на поле.");
+                    } else {
+                        ToastNotification.showInformation(mainWindow, 
+                            "Режим добавления вершин отключён");
+                    }
+                }
+            }
+        });
+
+        // клики
+        JButton btnAddEdge = toolbar.getBtnAddEdge();
+        btnAddEdge.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    // Двойной клик — диалог
+                    onAddEdge();
+                } else {
+                    // Одиночный клик — переключаем режим
+                    toolbar.toggleAddEdgeMode();
+                    if (toolbar.isAddEdgeMode()) {
+                        toolbar.setAddVertexMode(false);
+                        toolbar.setEraserMode(false);
+                        ToastNotification.showInformation(mainWindow, 
+                            "Режим добавления рёбер. Кликните на первую вершину, затем на вторую.");
+                    } else {
+                        toolbar.setSelectedVertexForEdge(null);
+                        ToastNotification.showInformation(mainWindow, 
+                            "Режим добавления рёбер отключён");
+                    }
+                }
+            }
+        });
+
+        // Кнопка "E" — ластик
+        toolbar.addEraserListener(e -> {
+            toolbar.setEraserMode(!toolbar.isEraserMode());
+            mainWindow.getGraphCanvas().setEraserMode(toolbar.isEraserMode());
+            if (toolbar.isEraserMode()) {
+                toolbar.setAddVertexMode(false);
+                toolbar.setAddEdgeMode(false);
+                ToastNotification.showInformation(mainWindow, 
+                    "Режим удаления. Кликните на вершину или ребро.");
+            } else {
+                ToastNotification.showInformation(mainWindow, 
+                    "Режим удаления отключён");
+            }
+        });
+
+        // Кнопка "C" — очистить всё
+        toolbar.addClearAllListener(e -> {
+            if (toolbar.showClearAllConfirmation()) {
+                clearAll();
+            }
+        });
+
+        setupCanvasListeners();
+    }
+
+    private void clearAll() {
+        graph = null;
+        runner = null;
+        algorithm = null;
+        vertexDataList.clear();
+        edgeDataList.clear();
+        stepHistory.clear();
+        currentStepIndex = -1;
+        mainWindow.getGraphCanvas().reset();
+        mainWindow.getGraphCanvas().setVertices(vertexDataList);
+        mainWindow.getGraphCanvas().setEdges(edgeDataList);
+        mainWindow.getBottomPanel().setButtonsState(true, false, false, false);
+        ToastNotification.showInformation(mainWindow, "Граф очищен");
+    }
+
+    private void addStepToHistory(String description) {
+        HistoryPanel historyPanel = mainWindow.getHistoryPanel();
+        if (historyPanel != null) {
+            historyPanel.addStep(description);
+        }
+    }
+
+    // История
+    private void toggleHistoryPanel() {
+        HistoryPanel historyPanel = mainWindow.getHistoryPanel();
+        if (historyPanel == null) {
+            historyPanel = new HistoryPanel();
+            mainWindow.setHistoryPanel(historyPanel);
+            mainWindow.add(historyPanel, BorderLayout.WEST);
+        }
+        historyPanel.setVisible(!historyPanel.isVisible());
+        mainWindow.revalidate();
+        mainWindow.repaint();
+    }
+
+    private void setupCanvasListeners() {
+        GraphCanvas canvas = mainWindow.getGraphCanvas();
+        ToolbarPanel toolbar = mainWindow.getToolbarPanel();
+
+        // Добавление вершины по клику
+        canvas.addVertexCreateListener((x, y) -> {
+            if (graph == null) {
+                createEmptyGraph();
+            }
+            if (toolbar.isAddVertexMode()) {
+                int newId = getNextVertexId();
+                graph.addVertex(newId);
+                
+                // Добавляем вершину с координатами клика
+                VertexData newVertex = new VertexData(newId, x, y);
+                vertexDataList.add(newVertex);
+                
+                // Обновляем рёбра
+                updateEdgeDataFromGraph();
+                
+                canvas.setVertices(vertexDataList);
+                canvas.setEdges(edgeDataList);
+                canvas.repaint();
+                
+                ToastNotification.showSuccess(mainWindow, "Вершина " + newId + " добавлена");
+            }
+        });
+
+        // Добавление ребра по клику
+        canvas.addEdgeCreateListener(new GraphCanvas.EdgeCreateListener() {
+            private Integer firstVertex = null;
+
+            @Override
+            public void onVertexSelectedForEdge(int vertexId) {
+                if (!toolbar.isAddEdgeMode()) return;
+                
+                if (firstVertex == null) {
+                    firstVertex = vertexId;
+                    ToastNotification.showInformation(mainWindow, 
+                        "Выбрана вершина " + firstVertex + ". Теперь выберите вторую вершину.");
+                } else {
+                    if (firstVertex != vertexId) {
+                        // Запрашиваем вес ребра
+                        Integer weight = toolbar.showWeightDialog(mainWindow, firstVertex, vertexId);
+                        if (weight != null && weight > 0) {
+                            if (graph == null) createEmptyGraph();
+                            graph.addEdge(firstVertex, vertexId, weight);
+                            updateEdgeDataFromGraph();
+                            canvas.setEdges(edgeDataList);
+                            canvas.repaint();
+                            ToastNotification.showSuccess(mainWindow, 
+                                "Ребро " + firstVertex + "-" + vertexId + " (вес: " + weight + ") добавлено");
+                        }
+                    } else {
+                        ToastNotification.showError(mainWindow, "Нельзя соединить вершину с самой собой!");
+                    }
+                    firstVertex = null;  // Сбрасываем выбор
+                }
+            }
+
+            @Override
+            public void onEdgeCreateRequested(int from, int to, int weight) {
+                // Не используется, оставлено для совместимости
+            }
+        });
+
+        // удаление ребер/вершин
+        canvas.addCanvasDeleteListener(new GraphCanvas.CanvasDeleteListener() {
+            @Override
+            public void onVertexDeleteRequested(int vertexId) {
+                if (graph == null) return;
+                if (!toolbar.isEraserMode()) return;
+                
+                // Удаляем вершину
+                Vertex vertex = graph.getVertices().get(vertexId);
+                if (vertex != null) {
+                    graph.removeVertex(vertex);
+                    resetAlgorithmState();
+                    convertGraphToData();
+                    canvas.setVertices(vertexDataList);
+                    canvas.setEdges(edgeDataList);
+                    canvas.repaint();
+                    ToastNotification.showSuccess(mainWindow, "Вершина " + vertexId + " удалена");
+                }
+            }
+
+            @Override
+            public void onEdgeDeleteRequested(int from, int to) {
+                if (graph == null) return;
+                if (!toolbar.isEraserMode()) return;
+                
+                // Находим и удаляем ребро
+                for (Edge edge : graph.getEdges()) {
+                    Vertex[] v = edge.getVertices();
+                    if ((v[0].getNumber() == from && v[1].getNumber() == to) ||
+                        (v[0].getNumber() == to && v[1].getNumber() == from)) {
+                        graph.removeEdge(edge);
+                        resetAlgorithmState();
+                        convertGraphToData();
+                        canvas.setVertices(vertexDataList);
+                        canvas.setEdges(edgeDataList);
+                        canvas.repaint();
+                        ToastNotification.showSuccess(mainWindow, "Ребро " + from + "-" + to + " удалено");
+                        return;
+                    }
+                }
+            }
+        });
+    }
+
+    private void resetAlgorithmState() {
+        runner = null;
+        algorithm = null;
+        stepHistory.clear();
+        currentStepIndex = -1;
+        mainWindow.getGraphCanvas().reset();
+        mainWindow.getBottomPanel().setButtonsState(true, false, false, true);
+    }
+
+    // Вспомогательный метод для получения нового ID
+    private int getNextVertexId() {
+        int maxId = 0;
+        for (VertexData v : vertexDataList) {
+            if (v.getId() > maxId) maxId = v.getId();
+        }
+        return maxId + 1;
+    }
+
+    // Обновление списка рёбер из графа
+    private void updateEdgeDataFromGraph() {
+        edgeDataList.clear();
+        if (graph != null) {
+            for (Edge edge : graph.getEdges()) {
+                Vertex[] v = edge.getVertices();
+                edgeDataList.add(new EdgeData(v[0].getNumber(), v[1].getNumber(), edge.getWeight()));
+            }
+        }
     }
 
     private void onAddEdge() {
@@ -44,20 +294,32 @@ public class Controller {
             createEmptyGraph();
         }
 
-        int[] data = mainWindow.getToolbarPanel().showAddEdgeDialog();
+        if (graph.getVertices().isEmpty()) {
+            ToastNotification.showError(mainWindow, "Сначала добавьте вершины!");
+            return;
+        }
+
+        int[] data = mainWindow.getToolbarPanel().showAddEdgeDialog(mainWindow);
         if (data != null) {
             try {
                 int from = data[0];
                 int to = data[1];
                 int weight = data[2];
+
+                if (!graph.getVertices().containsKey(from) || !graph.getVertices().containsKey(to)) {
+                    ToastNotification.showError(mainWindow, "Одна из вершин не найдена!");
+                    return;
+                }
+
                 graph.addEdge(from, to, weight);
                 convertGraphToData();
                 mainWindow.getGraphCanvas().setVertices(vertexDataList);
                 mainWindow.getGraphCanvas().setEdges(edgeDataList);
                 mainWindow.getGraphCanvas().repaint();
-                mainWindow.showInfo("Ребро " + from + "-" + to + " (вес: " + weight + ") добавлено");
+                mainWindow.getBottomPanel().setButtonsState(true, false, false, true);
+                ToastNotification.showSuccess(mainWindow,"Ребро " + from + "-" + to + " (вес: " + weight + ") добавлено");
             } catch (Exception ex) {
-                mainWindow.showError("Ошибка добавления ребра: " + ex.getMessage());
+                ToastNotification.showError(mainWindow, "Ошибка добавления ребра: " + ex.getMessage());
             }
         }
     }
@@ -67,7 +329,7 @@ public class Controller {
             createEmptyGraph();
         }
 
-        int[] data = mainWindow.getToolbarPanel().showAddVertexDialog();
+        int[] data = mainWindow.getToolbarPanel().showAddVertexDialog(mainWindow);
         if (data != null) {
             try {
                 int id = data[0];
@@ -75,10 +337,11 @@ public class Controller {
                 convertGraphToData();
                 mainWindow.getGraphCanvas().setVertices(vertexDataList);
                 mainWindow.getGraphCanvas().setEdges(edgeDataList);
-                mainWindow.getGraphCanvas().repaint();  
-                mainWindow.showInfo("Вершина " + id + " добавлена");
+                mainWindow.getGraphCanvas().repaint();
+                mainWindow.getBottomPanel().setButtonsState(true, false, false, true);
+                ToastNotification.showSuccess(mainWindow,"Вершина " + id + " добавлена");
             } catch (Exception ex) {
-                mainWindow.showError("Ошибка добавления вершины: " + ex.getMessage());
+                ToastNotification.showError(mainWindow,"Ошибка добавления вершины: " + ex.getMessage());
             }
         }
     }
@@ -97,11 +360,11 @@ public class Controller {
                 mainWindow.getGraphCanvas().setEdges(edgeDataList);
                 mainWindow.getGraphCanvas().reset();
 
-                mainWindow.showInfo("Граф загружен: " + file.getName());
+                ToastNotification.showInformation(mainWindow, "Граф загружен: " + file.getName());
                 mainWindow.getBottomPanel().setButtonsState(true, false, false, true);
 
             } catch (Exception ex) {
-                mainWindow.showError("Ошибка загрузки: " + ex.getMessage());
+                ToastNotification.showError(mainWindow, "Ошибка загрузки: " + ex.getMessage());
             }
         }
     }
@@ -114,7 +377,8 @@ public class Controller {
             mainWindow.getGraphCanvas().setVertices(vertexDataList);
             mainWindow.getGraphCanvas().setEdges(edgeDataList);
             mainWindow.getGraphCanvas().repaint();
-            mainWindow.showInfo("Создан пустой граф");
+            mainWindow.getBottomPanel().setButtonsState(true, false, false, true);
+            ToastNotification.showInformation(mainWindow, "Создан пустой граф");
         }
     }
 
@@ -144,54 +408,97 @@ public class Controller {
 
     public void onStart() {
         if (graph == null) {
-            mainWindow.showError("Сначала создайте или загрузите граф!");
+            ToastNotification.showError(mainWindow, "Сначала создайте или загрузите граф!");
             return;
         }
 
         try {
-            if (runner == null) {
-                runner = new Runner(graph);  // ← нужно добавить этот конструктор
-            }
-            runner.run();
+            runner = new Runner(graph);
             algorithm = runner.getAlgorithm();
-
-            ArrayList<Edge> mstEdges = algorithm.getMSTEdges();
-            int totalWeight = algorithm.getMstLen();
-
-            Set<String> mstEdgeKeys = new HashSet<>();
-            for (Edge edge : mstEdges) {
-                Vertex[] v = edge.getVertices();
-                String key = v[0].getNumber() + "-" + v[1].getNumber();
-                mstEdgeKeys.add(key);
-            }
-
-             mainWindow.getGraphCanvas().updateState(
-                new HashSet<>(),           // visitedVertices (можно пока пустое)
-                mstEdgeKeys,               // mstEdges — выделить зелёным
-                null,                      // currentVertex
-                null                       // currentEdge
-            );
-
-            mainWindow.showInfo("Алгоритм завершён! Вес МОД: " + algorithm.getMstLen());
-            mainWindow.getBottomPanel().setButtonsState(false, false, false, true);
-
+            algorithm.start();
+            stepHistory.clear();  // очищаем историю перед сохранением
+            saveCurrentStepSnapshot("Алгоритм запущен");
+            currentStepIndex = 0;
+            updateViewFromCurrentStep();
+            
+            mainWindow.getBottomPanel().setButtonsState(false, true, false, true);
+            ToastNotification.showInformation(mainWindow, "Алгоритм запущен. Нажимайте 'N' для следующего шага.");
+            
         } catch (Exception ex) {
-            mainWindow.showError("Ошибка выполнения: " + ex.getMessage());
+            ToastNotification.showError(mainWindow, "Ошибка запуска: " + ex.getMessage());
         }
     }
 
-    public void onNextStep() {
-        mainWindow.showInfo("Бета-версия: пошаговый режим будет позже");
-    }
 
     public void onPrevStep() {
-        mainWindow.showInfo("Финальная версия: шаг назад будет позже");
+        // 1. Проверяем, загружен ли граф
+        if (graph == null) {
+            ToastNotification.showError(mainWindow, "Сначала загрузите или создайте граф!");
+            return;
+        }
+
+        // 2. Проверяем, запущен ли алгоритм
+        if (algorithm == null) {
+            ToastNotification.showInformation(mainWindow, "Алгоритм ещё не запущен!");
+            return;
+        }
+
+        // 3. Проверяем, можно ли откатиться 
+        try {
+            algorithm.prevStep();
+        } catch (Exception e) {
+            ToastNotification.showInformation(mainWindow, "Нельзя откатиться дальше!");
+            return;
+        }
+
+        try {
+            
+            if (!algorithm.canGoBack()) {
+            ToastNotification.showInformation(mainWindow, "Нельзя откатиться дальше!");
+            return;
+        }
+            // 4. Выполняем откат на один шаг
+            algorithm.prevStep();
+
+            // 5. Обновляем отображение графа
+            updateViewAfterPrevStep();
+
+            // 6. Добавляем запись в историю (если используется)
+            addStepToHistory("Откат на шаг назад");
+
+            // 7. Обновляем состояние кнопок
+            boolean canPrev = algorithm.canGoBack();
+            mainWindow.getBottomPanel().setButtonsState(false, true, canPrev, true);
+
+            ToastNotification.showInformation(mainWindow, "Шаг назад выполнен");
+
+        } catch (Exception ex) {
+            ToastNotification.showError(mainWindow, "Ошибка отката: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    private void updateViewAfterPrevStep() {
+        // Получаем текущее состояние из алгоритма
+        Set<Integer> visitedVertices = new HashSet<>(algorithm.getMSTVerticesSet());
+    
+        Set<String> mstEdgeKeys = algorithm.getMSTEdgesKeys();
+        
+        Integer currentVertex = algorithm.getCurrentVertex();
+        String currentEdgeKey = algorithm.getCurrentEdgeKey();
+        
+        mainWindow.getGraphCanvas().updateState(
+            visitedVertices,
+            mstEdgeKeys,
+            currentVertex,
+            currentEdgeKey
+        );
     }
 
     public void onReset() {
         mainWindow.getGraphCanvas().reset();
         mainWindow.getBottomPanel().setButtonsState(true, false, false, true);
-        mainWindow.showInfo("Сброшено");
+        ToastNotification.showInformation(mainWindow,"Сброшено");
     }
 
     public void saveResultToFile() {
@@ -199,9 +506,9 @@ public class Controller {
         if (chooser.showSaveDialog(mainWindow) == JFileChooser.APPROVE_OPTION) {
             try {
                 graph.save(chooser.getSelectedFile().getAbsolutePath());
-                mainWindow.showInfo("Результат сохранён");
+                ToastNotification.showInformation(mainWindow,"Результат сохранён");
             } catch (Exception ex) {
-                mainWindow.showError("Ошибка сохранения: " + ex.getMessage());
+                ToastNotification.showError(mainWindow,"Ошибка сохранения: " + ex.getMessage());
             }
         }
     }
@@ -213,5 +520,99 @@ public class Controller {
                       "Резяпова Алина — модуль управления и интеграции\n\n" +
                       "Бригада: 8";
         JOptionPane.showMessageDialog(mainWindow, info, "О разработчиках", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    //////////
+    private List<StepSnapshot> stepHistory = new ArrayList<>();
+    private int currentStepIndex = -1;
+
+    // Класс для хранения состояния шага
+    private static class StepSnapshot {
+        Set<Integer> visitedVertices;
+        Set<String> mstEdges;
+        Integer currentVertex;
+        String currentEdge;
+        String description;
+        int stepNumber;
+    }
+
+
+    public void onNextStep() {
+        if (graph == null) {
+            ToastNotification.showError(mainWindow, "Сначала загрузите граф!");
+            return;
+        }
+
+        try {
+            if (algorithm == null) {
+                runner = new Runner(graph);
+                algorithm = runner.getAlgorithm();
+                algorithm.start();
+                stepHistory.clear();
+                saveCurrentStepSnapshot("Алгоритм запущен");
+                currentStepIndex = 0;
+                updateViewFromCurrentStep();
+                mainWindow.getBottomPanel().setButtonsState(false, true, false, true);
+                return;
+            }
+
+            // Проверяем, не завершён ли алгоритм
+            if (currentStepIndex >= stepHistory.size() - 1 && stepHistory.size() > 0) {
+                String lastEntry = algorithm.getLastHistoryEntry();
+                if (lastEntry != null && lastEntry.contains("завершён")) {
+                    ToastNotification.showInformation(mainWindow, "Алгоритм уже завершён! Нажмите 'Старт' для перезапуска.");
+                    return;
+                }
+            }
+
+            // Выполняем один шаг
+            boolean hasNext = algorithm.nextStep();
+            saveCurrentStepSnapshot(algorithm.getHistory().get(algorithm.getHistory().size() - 1));
+            currentStepIndex = stepHistory.size() - 1;
+            updateViewFromCurrentStep();
+
+            if (!hasNext) {
+                ToastNotification.showInformation(mainWindow, 
+                    "Алгоритм завершён! Вес МОД: " + algorithm.getMstLen());
+                mainWindow.getBottomPanel().setButtonsState(false, false, true, true);
+            } else {
+                boolean canPrev = algorithm.canGoBack();
+                mainWindow.getBottomPanel().setButtonsState(false, true, true, true);
+            }
+
+        } catch (Exception ex) {
+            ToastNotification.showError(mainWindow, "Ошибка шага: " + ex.getMessage());
+        }
+    }
+
+    // Метод для сохранения текущего состояния
+    private void saveCurrentStepSnapshot(String description) {
+        StepSnapshot snapshot = new StepSnapshot();
+        snapshot.visitedVertices = new HashSet<>(algorithm.getVisitedVertices());
+        snapshot.mstEdges = new HashSet<>();
+        for (Edge edge : algorithm.getMSTEdges()) {
+            Vertex[] v = edge.getVertices();
+            snapshot.mstEdges.add(v[0].getNumber() + "-" + v[1].getNumber());
+        }
+        snapshot.currentVertex = algorithm.getCurrentVertex();
+        snapshot.currentEdge = algorithm.getCurrentEdgeKey();
+        snapshot.description = description;
+        snapshot.stepNumber = stepHistory.size() + 1;
+        stepHistory.add(snapshot);
+        
+        addStepToHistory("Шаг " + snapshot.stepNumber + ": " + description);
+    }
+
+    // Обновление View из текущего шага
+    private void updateViewFromCurrentStep() {
+        if (currentStepIndex < 0 || currentStepIndex >= stepHistory.size()) return;
+        
+        StepSnapshot snapshot = stepHistory.get(currentStepIndex);
+        mainWindow.getGraphCanvas().updateState(
+            snapshot.visitedVertices,
+            snapshot.mstEdges,
+            snapshot.currentVertex,
+            snapshot.currentEdge
+        );
     }
 }
