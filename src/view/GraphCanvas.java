@@ -122,7 +122,11 @@ public class GraphCanvas extends JPanel {
                     }
                 }
             }
+<<<<<<< HEAD
             
+=======
+
+>>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
             @Override
             public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isMiddleMouseButton(e)) {
@@ -133,7 +137,11 @@ public class GraphCanvas extends JPanel {
                     int graphX = (int) ((e.getX() - offsetX) / scale);
                     int graphY = (int) ((e.getY() - offsetY) / scale);
 
+<<<<<<< HEAD
                     if (isEraserMode && canvasDeleteListener != null) {
+=======
+                    if (canvasDeleteListener != null) {
+>>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
                         VertexData clickedVertex = getVertexAtPoint(graphX, graphY);
                         if (clickedVertex != null) {
                             canvasDeleteListener.onVertexDeleteRequested(clickedVertex.getId());
@@ -149,7 +157,10 @@ public class GraphCanvas extends JPanel {
                             return;
                         }
                     }
+<<<<<<< HEAD
                     
+=======
+>>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
                     // Проверяем, кликнули ли по вершине
                     VertexData clickedVertex = getVertexAtPoint(graphX, graphY);
 

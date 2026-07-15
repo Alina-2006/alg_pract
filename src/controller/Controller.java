@@ -316,7 +316,10 @@ public class Controller {
                 mainWindow.getGraphCanvas().setVertices(vertexDataList);
                 mainWindow.getGraphCanvas().setEdges(edgeDataList);
                 mainWindow.getGraphCanvas().repaint();
+<<<<<<< HEAD
                 mainWindow.getBottomPanel().setButtonsState(true, false, false, true);
+=======
+>>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
                 ToastNotification.showSuccess(mainWindow,"Ребро " + from + "-" + to + " (вес: " + weight + ") добавлено");
             } catch (Exception ex) {
                 ToastNotification.showError(mainWindow, "Ошибка добавления ребра: " + ex.getMessage());
@@ -338,7 +341,10 @@ public class Controller {
                 mainWindow.getGraphCanvas().setVertices(vertexDataList);
                 mainWindow.getGraphCanvas().setEdges(edgeDataList);
                 mainWindow.getGraphCanvas().repaint();
+<<<<<<< HEAD
                 mainWindow.getBottomPanel().setButtonsState(true, false, false, true);
+=======
+>>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
                 ToastNotification.showSuccess(mainWindow,"Вершина " + id + " добавлена");
             } catch (Exception ex) {
                 ToastNotification.showError(mainWindow,"Ошибка добавления вершины: " + ex.getMessage());
@@ -377,7 +383,10 @@ public class Controller {
             mainWindow.getGraphCanvas().setVertices(vertexDataList);
             mainWindow.getGraphCanvas().setEdges(edgeDataList);
             mainWindow.getGraphCanvas().repaint();
+<<<<<<< HEAD
             mainWindow.getBottomPanel().setButtonsState(true, false, false, true);
+=======
+>>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
             ToastNotification.showInformation(mainWindow, "Создан пустой граф");
         }
     }
@@ -408,7 +417,11 @@ public class Controller {
 
     public void onStart() {
         if (graph == null) {
+<<<<<<< HEAD
             ToastNotification.showError(mainWindow, "Сначала создайте или загрузите граф!");
+=======
+            ToastNotification.showError(mainWindow,"Сначала создайте или загрузите граф!");
+>>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
             return;
         }
 
@@ -443,6 +456,7 @@ public class Controller {
             return;
         }
 
+<<<<<<< HEAD
         // 3. Проверяем, можно ли откатиться 
         try {
             algorithm.prevStep();
@@ -456,10 +470,18 @@ public class Controller {
             if (!algorithm.canGoBack()) {
             ToastNotification.showInformation(mainWindow, "Нельзя откатиться дальше!");
             return;
+=======
+            ToastNotification.showInformation(mainWindow, "Алгоритм завершён! Вес МОД: " + algorithm.getMstLen());
+            mainWindow.getBottomPanel().setButtonsState(false, false, false, true);
+
+        } catch (Exception ex) {
+            ToastNotification.showError(mainWindow, "Ошибка выполнения: " + ex.getMessage());
+>>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
         }
             // 4. Выполняем откат на один шаг
             algorithm.prevStep();
 
+<<<<<<< HEAD
             // 5. Обновляем отображение графа
             updateViewAfterPrevStep();
 
@@ -493,6 +515,14 @@ public class Controller {
             currentVertex,
             currentEdgeKey
         );
+=======
+    public void onNextStep() {
+        ToastNotification.showInformation(mainWindow, "Бета-версия: пошаговый режим будет позже");
+    }
+
+    public void onPrevStep() {
+        ToastNotification.showInformation(mainWindow,"Финальная версия: шаг назад будет позже");
+>>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
     }
 
     public void onReset() {
