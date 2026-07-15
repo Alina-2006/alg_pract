@@ -61,7 +61,6 @@ public class MinHeap {
     }
 
     public MinHeap copy(){
-        MinHeap newHeap = new MinHeap(this.heap);
-        return newHeap;
+        return new MinHeap(this.heap);
     }
 }

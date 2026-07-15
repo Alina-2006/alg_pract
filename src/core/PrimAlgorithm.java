@@ -96,7 +96,6 @@ public class PrimAlgorithm {
             return;
         }
         this.heap = this.heapHistory.getLast();
-        System.out.printf("\n%s\n", this.heap.heap.toString());
         this.heapHistory.removeLast();
         this.mstEdges.getLast().setColor('b');
         this.mstLen -= this.mstEdges.getLast().getWeight();
@@ -126,16 +125,70 @@ public class PrimAlgorithm {
         return this.history;
     }
 
-    public void saveResult(String file_name) {
-        try (java.io.FileWriter writer = new java.io.FileWriter(file_name)) {
+    public int saveResult(String fileName) {
+        if(!fileName.toLowerCase().endsWith(".txt")){
+            //Выбрасываем исключение из-за того, что файл не .txt
+            return this.mstLen;
+        }
+        try (java.io.FileWriter writer = new java.io.FileWriter(fileName)) {
             for (Edge edge : this.mstEdges) {
                 Vertex[] v = edge.getVertices();
                 writer.write(v[0].getNumber() + " " + v[1].getNumber() + " " + edge.getWeight() + "\n");
             }
-            writer.write(this.mstLen + "\n");
         } catch (java.io.IOException e) {
             // Выдаём ошибку, что сохранить не удалось
         }
+        return this.mstLen;
+    }
+
+    public Set<Integer> getVisitedVertices() {
+        return mstVertices.keySet();
+    }
+
+    public Integer getCurrentVertex() {
+        return currentVertex != null ? currentVertex.getNumber() : null;
+    }
+
+    public String getCurrentEdgeKey() {
+        if (currentEdge == null) return null;
+        Vertex[] v = currentEdge.getVertices();
+        return v[0].getNumber() + "-" + v[1].getNumber();
+    }
+
+    public String getLastHistoryEntry() {
+        if (history == null || history.isEmpty()) return "";
+        return history.get(history.size() - 1);
+    }
+
+    public HashMap<Integer, Vertex> getMSTVerticesMap() {
+        return mstVertices;
+    }
+
+    public Edge getCurrentEdge() {
+        return currentEdge;
+    }
+
+    public ArrayList<MinHeap> getHeapHistory() {
+        return heapHistory;
+    }
+
+    public boolean canGoBack() {
+        return heapHistory != null && !heapHistory.isEmpty();
+    }
+
+    public Set<Integer> getMSTVerticesSet() {
+        return mstVertices != null ? mstVertices.keySet() : new HashSet<>();
+    }
+
+    public Set<String> getMSTEdgesKeys() {
+        Set<String> keys = new HashSet<>();
+        if (mstEdges != null) {
+            for (Edge edge : mstEdges) {
+                Vertex[] v = edge.getVertices();
+                keys.add(v[0].getNumber() + "-" + v[1].getNumber());
+            }
+        }
+        return keys;
     }
 
     public Set<Integer> getVisitedVertices() {
