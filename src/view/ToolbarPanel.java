@@ -37,11 +37,7 @@ public class ToolbarPanel extends JPanel{
         btnClearAll = createToolButton("C");
 
         // подсветка режима
-<<<<<<< HEAD
         /*btnEraser.addActionListener(e -> {
-=======
-        btnEraser.addActionListener(e -> {
->>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
             isEraserMode = !isEraserMode;
             btnEraser.setBackground(isEraserMode ? new Color(80, 150, 170) : null);
         });
@@ -81,11 +77,7 @@ public class ToolbarPanel extends JPanel{
             setAddEdgeMode(false);
             setEraserMode(false);
             selectedVertexForEdge = null;
-<<<<<<< HEAD
-        }); */
-=======
-        });
->>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
+        });*/
 
         add(btnAddVertex);
         add(Box.createVerticalStrut(5));
@@ -95,6 +87,7 @@ public class ToolbarPanel extends JPanel{
         add(Box.createVerticalStrut(5));
         add(btnClearAll);
     }
+
     //создание аккуратных одинаково оформленных кнопок
     private  JButton createToolButton(String text) {
         JButton button = new JButton(text);
@@ -134,7 +127,6 @@ public class ToolbarPanel extends JPanel{
         this.selectedVertexForEdge = null;
     }
 
-
     public void setEraserMode(boolean eraserMode) {
         this.isEraserMode = eraserMode;
         btnEraser.setBackground(eraserMode ? new Color(80, 150, 170) : null);
@@ -157,62 +149,34 @@ public class ToolbarPanel extends JPanel{
         btnClearAll.addActionListener(listener);
     }
 
-    // диалог для добавления вершины
-<<<<<<< HEAD
+    // ===== ДИАЛОГИ С ЦЕНТРИРОВАНИЕМ (исправленная версия) =====
+    
     public int[] showAddVertexDialog(Window parent) {
-=======
-    public int[] showAddVertexDialog() {
->>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
         JTextField idField = new JTextField(10);
         JPanel panel = new JPanel(new FlowLayout());
         panel.add(new JLabel("ID вершины:"));
         panel.add(idField);
 
-<<<<<<< HEAD
-        // Создаём JOptionPane вручную для контроля позиции
         JOptionPane optionPane = new JOptionPane(panel, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
         JDialog dialog = optionPane.createDialog(parent, "Добавить вершину");
-        dialog.setLocationRelativeTo(parent);  // ← ГЛАВНОЕ!
+        dialog.setLocationRelativeTo(parent);
         dialog.setVisible(true);
-=======
-        Window parentWindow = SwingUtilities.getWindowAncestor(this);
-
-        int result = JOptionPane.showConfirmDialog(
-                parentWindow,
-                panel,
-                "Добавить вершину",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE
-        );
->>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
 
         int result = (Integer) optionPane.getValue();
         if (result == JOptionPane.OK_OPTION) {
             try {
                 int id = Integer.parseInt(idField.getText().trim());
-<<<<<<< HEAD
                 ToastNotification.showSuccess(parent, "Вершина " + id + " добавлена");
                 return new int[]{id};
             } catch (NumberFormatException e) {
                 ToastNotification.showError(parent, "Введите корректное число!");
-=======
-                ToastNotification.showSuccess(parentWindow, "Вершина" + id + "добавлена;>");
-                return new int[]{id};
-            } catch (NumberFormatException e) {
-                ToastNotification.showError(parentWindow, "Введите корректное число!");
->>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
                 return null;
             }
         }
         return null;
     }
 
-    // диалог для добавления ребра
-<<<<<<< HEAD
     public int[] showAddEdgeDialog(Window parent) {
-=======
-    public int[] showAddEdgeDialog() {
->>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
         JTextField fromField = new JTextField(10);
         JTextField toField = new JTextField(10);
         JTextField weightField = new JTextField(10);
@@ -226,22 +190,10 @@ public class ToolbarPanel extends JPanel{
         panel.add(new JLabel("Вес ребра:"));
         panel.add(weightField);
 
-<<<<<<< HEAD
         JOptionPane optionPane = new JOptionPane(panel, JOptionPane.PLAIN_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
         JDialog dialog = optionPane.createDialog(parent, "Добавить ребро");
-        dialog.setLocationRelativeTo(parent);  // ← ГЛАВНОЕ!
+        dialog.setLocationRelativeTo(parent);
         dialog.setVisible(true);
-=======
-        Window parentWindow = SwingUtilities.getWindowAncestor(this);
-
-        int result = JOptionPane.showConfirmDialog(
-                parentWindow,
-                panel,
-                "Добавить ребро",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE
-        );
->>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
 
         int result = (Integer) optionPane.getValue();
         if (result == JOptionPane.OK_OPTION) {
@@ -251,45 +203,13 @@ public class ToolbarPanel extends JPanel{
                 int weight = Integer.parseInt(weightField.getText().trim());
                 return new int[]{from, to, weight};
             } catch (NumberFormatException e) {
-<<<<<<< HEAD
                 ToastNotification.showError(parent, "Введите корректные числа!");
-=======
-                ToastNotification.showError(parentWindow, "Введите корректные числа! >:(");
                 return null;
             }
         }
         return null;
     }
 
-    public Integer showWeightDialog(int from, int to) {
-        JTextField weightField = new JTextField(10);
-        JPanel panel = new JPanel(new FlowLayout());
-        panel.add(new JLabel("Вес ребра " + from + " → " + to + ":"));
-        panel.add(weightField);
-        Window parentWindow = SwingUtilities.getWindowAncestor(this);
-
-        int result = JOptionPane.showConfirmDialog(
-                parentWindow,
-                panel,
-                "Добавить ребро",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE
-        );
-
-        if (result == JOptionPane.OK_OPTION) {
-            try {
-                int weight = Integer.parseInt(weightField.getText().trim());
-                return weight;
-            } catch (NumberFormatException e) {
-                ToastNotification.showError(parentWindow, "Введите корректное число!");
->>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
-                return null;
-            }
-        }
-        return null;
-    }
-
-<<<<<<< HEAD
     public Integer showWeightDialog(Window parent, int from, int to) {
         JTextField weightField = new JTextField(10);
         JPanel panel = new JPanel(new FlowLayout());
@@ -298,7 +218,7 @@ public class ToolbarPanel extends JPanel{
 
         JOptionPane optionPane = new JOptionPane(panel, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION);
         JDialog dialog = optionPane.createDialog(parent, "Добавить ребро");
-        dialog.setLocationRelativeTo(parent);  
+        dialog.setLocationRelativeTo(parent);
         dialog.setVisible(true);
 
         int result = (Integer) optionPane.getValue();
@@ -314,9 +234,6 @@ public class ToolbarPanel extends JPanel{
         return null;
     }
 
-
-=======
->>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
     // Диалог подтверждения полного сброса графа
     public boolean showClearAllConfirmation() {
         Window parentWindow = SwingUtilities.getWindowAncestor(this);
@@ -331,7 +248,8 @@ public class ToolbarPanel extends JPanel{
 
         return result == JOptionPane.YES_OPTION;
     }
-<<<<<<< HEAD
+
+    // ===== МЕТОДЫ ДЛЯ ПЕРЕКЛЮЧЕНИЯ РЕЖИМОВ =====
 
     public void toggleAddVertexMode() {
         setAddVertexMode(!isAddVertexMode);
@@ -343,7 +261,7 @@ public class ToolbarPanel extends JPanel{
         } else {
             btnAddVertex.setBackground(null);
         }
-    } 
+    }
 
     public void toggleAddEdgeMode() {
         setAddEdgeMode(!isAddEdgeMode);
@@ -370,6 +288,8 @@ public class ToolbarPanel extends JPanel{
         }
     }
 
+    // ===== ГЕТТЕРЫ =====
+
     public JButton getBtnAddVertex() {
         return btnAddVertex;
     }
@@ -385,6 +305,4 @@ public class ToolbarPanel extends JPanel{
     public JButton getBtnClearAll() {
         return btnClearAll;
     }
-=======
->>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
 }

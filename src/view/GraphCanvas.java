@@ -34,8 +34,7 @@ public class GraphCanvas extends JPanel {
     // размер вершин
     private int vertexRadius = 25;
 
-
-    //интерфейс для создания вершин по клику
+    // интерфейс для создания вершин по клику
     public interface VertexCreateListener {
         void onVertexCreateRequested(int x, int y);
     }
@@ -45,7 +44,6 @@ public class GraphCanvas extends JPanel {
     public void addVertexCreateListener(VertexCreateListener listener) {
         this.vertexCreateListener = listener;
     }
-
 
     // Для выбора вершины при создании ребра
     public interface EdgeCreateListener {
@@ -75,6 +73,7 @@ public class GraphCanvas extends JPanel {
     public void addCanvasDeleteListener(CanvasDeleteListener listener) {
         this.canvasDeleteListener = listener;
     }
+
     public void addCanvasClickListener(CanvasClickListener listener) {
         this.canvasClickListener = listener;
     }
@@ -97,20 +96,15 @@ public class GraphCanvas extends JPanel {
     // функция для мыши
     private void initMouseHandlers() {
 
-        // Проверка на нажатие
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                // Проверяем, что это двойной клик левой кнопкой
                 if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
-                    // Вычисляем координаты с учётом зума и смещения
                     int graphX = (int) ((e.getX() - offsetX) / scale);
                     int graphY = (int) ((e.getY() - offsetY) / scale);
 
-                    // Ищем ребро рядом с точкой клика
                     EdgeData clickedEdge = getEdgeAtPoint(graphX, graphY);
 
-                    // Если ребро найдено и есть слушатель — вызываем его
                     if (clickedEdge != null) {
                         setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                         setToolTipText("Ребро " + clickedEdge.getFrom() + "→" +
@@ -122,26 +116,19 @@ public class GraphCanvas extends JPanel {
                     }
                 }
             }
-<<<<<<< HEAD
-            
-=======
 
->>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
             @Override
             public void mousePressed(MouseEvent e) {
                 if (SwingUtilities.isMiddleMouseButton(e)) {
                     lastMousePosition = e.getPoint();
-                    isPanning = true; // режим перетаскивания холста - ON
-                    setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR)); //меняем вид курсора
+                    isPanning = true;
+                    setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
                 } else if (SwingUtilities.isLeftMouseButton(e)) {
                     int graphX = (int) ((e.getX() - offsetX) / scale);
                     int graphY = (int) ((e.getY() - offsetY) / scale);
 
-<<<<<<< HEAD
+                    // ===== УДАЛЕНИЕ (ТОЛЬКО ЕСЛИ ВКЛЮЧЁН РЕЖИМ ЛАСТИКА) =====
                     if (isEraserMode && canvasDeleteListener != null) {
-=======
-                    if (canvasDeleteListener != null) {
->>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
                         VertexData clickedVertex = getVertexAtPoint(graphX, graphY);
                         if (clickedVertex != null) {
                             canvasDeleteListener.onVertexDeleteRequested(clickedVertex.getId());
@@ -157,21 +144,17 @@ public class GraphCanvas extends JPanel {
                             return;
                         }
                     }
-<<<<<<< HEAD
-                    
-=======
->>>>>>> 23ae418532b103110a1c50d53982041b6d15b39a
+                    // ======================================================
+
                     // Проверяем, кликнули ли по вершине
                     VertexData clickedVertex = getVertexAtPoint(graphX, graphY);
 
                     if (clickedVertex != null) {
-                        // Если кликнули по вершине и активен режим добавления рёбер
                         if (edgeCreateListener != null) {
                             edgeCreateListener.onVertexSelectedForEdge(clickedVertex.getId());
                             return;
                         }
                     } else {
-                        // Если кликнули по пустому месту и активен режим добавления вершин
                         if (vertexCreateListener != null) {
                             vertexCreateListener.onVertexCreateRequested(graphX, graphY);
                         }
@@ -179,7 +162,6 @@ public class GraphCanvas extends JPanel {
                 }
             }
 
-            // возвращение к состоянию покоя
             @Override
             public void mouseReleased(MouseEvent e) {
                 if (SwingUtilities.isMiddleMouseButton(e)) {
@@ -189,7 +171,6 @@ public class GraphCanvas extends JPanel {
             }
         });
 
-        // перетаскивание при зажатом колёсике
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
@@ -204,7 +185,6 @@ public class GraphCanvas extends JPanel {
             }
         });
 
-        // зум прокрутом колёсиком
         addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
@@ -259,14 +239,13 @@ public class GraphCanvas extends JPanel {
 
     private VertexData findVertex(int id) {
         for (VertexData vertex : vertices) {
-            if (vertex.getId() == id) {  // ✅ Ищем по ID
+            if (vertex.getId() == id) {
                 return vertex;
             }
         }
         return null;
     }
 
-    // метод для получения информации о вершине по клику
     public VertexData getVertexAtPoint(int pointX, int pointY) {
         for (VertexData vertex : vertices) {
             double dx = vertex.getX() - pointX;
@@ -279,14 +258,11 @@ public class GraphCanvas extends JPanel {
         return null;
     }
 
-    // Метод для получения информации о ребре по клику
     public EdgeData getEdgeAtPoint(int pointX, int pointY) {
-        // Упрощенная проверка - можно улучшить
         for (EdgeData edge : edges) {
             VertexData v1 = findVertex(edge.getFrom());
             VertexData v2 = findVertex(edge.getTo());
             if (v1 != null && v2 != null) {
-                // Проверяем, находится ли точка близко к линии
                 if (isPointNearLine(pointX, pointY, v1.getX(), v1.getY(), v2.getX(), v2.getY(), 10)) {
                     return edge;
                 }
@@ -295,7 +271,6 @@ public class GraphCanvas extends JPanel {
         return null;
     }
 
-    // Вспомогательный метод для проверки расстояния до линии
     private boolean isPointNearLine(int px, int py, double x1, double y1,
                                     double x2, double y2, double tolerance) {
         double A = px - x1;
@@ -308,9 +283,11 @@ public class GraphCanvas extends JPanel {
         if (len_sq != 0) param = dot / len_sq;
         double xx, yy;
         if (param < 0) {
-            xx = x1; yy = y1;
+            xx = x1;
+            yy = y1;
         } else if (param > 1) {
-            xx = x2; yy = y2;
+            xx = x2;
+            yy = y2;
         } else {
             xx = x1 + param * C;
             yy = y1 + param * D;
@@ -320,7 +297,6 @@ public class GraphCanvas extends JPanel {
         return Math.sqrt(dx * dx + dy * dy) < tolerance;
     }
 
-    // отрисовка графа
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -370,13 +346,12 @@ public class GraphCanvas extends JPanel {
             int x = (int) vertex.getX();
             int y = (int) vertex.getY();
 
-            // Определяем цвет вершины
             if (vertex.getId() == (currentVertex != null ? currentVertex : -1)) {
-                g2.setColor(new Color(255, 200, 0)); // жёлтый — текущая
+                g2.setColor(new Color(255, 200, 0));
             } else if (visitedVertices.contains(vertex.getId())) {
-                g2.setColor(new Color(60, 179, 113)); // зелёный — посещённая
+                g2.setColor(new Color(60, 179, 113));
             } else {
-                g2.setColor(new Color(100, 149, 237)); // голубой — обычная
+                g2.setColor(new Color(100, 149, 237));
             }
 
             g2.fillOval(x - vertexRadius, y - vertexRadius,
