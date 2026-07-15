@@ -2,7 +2,6 @@ package core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class Graph {
     HashMap<Integer, Vertex> vertices;
@@ -23,6 +22,13 @@ public class Graph {
         }
     }
     public void addEdge(int weight, Vertex[] vertices){
+        for(Edge edge : this.edges){
+            if((edge.getVertices()[0] == vertices[0] && edge.getVertices()[1] == vertices[1]) ||
+                    (edge.getVertices()[1] == vertices[0] && edge.getVertices()[0] == vertices[1])){
+                edge.changeWeight(weight);
+                return;
+            }
+        }
         this.edges.add(new Edge(weight, vertices));
     }
     public void removeEdge(Edge edge){
@@ -49,8 +55,12 @@ public class Graph {
     public int getSize(){
         return vertices.size();
     }
-    public void save(String file_name) {
-        try (java.io.FileWriter writer = new java.io.FileWriter(file_name)) {
+    public void save(String fileName) {
+        if(!fileName.toLowerCase().endsWith(".txt")){
+            //Выбрасываем исключение из-за того, что файл не .txt
+            return;
+        }
+        try (java.io.FileWriter writer = new java.io.FileWriter(fileName)) {
             for (Edge edge : this.edges) {
                 Vertex[] v = edge.getVertices();
                 writer.write(v[0].getNumber() + " " + v[1].getNumber() + " " + edge.getWeight() + "\n");

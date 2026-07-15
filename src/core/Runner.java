@@ -10,6 +10,10 @@ public class Runner {
     Graph graph;
     PrimAlgorithm algorithm;
     public Runner(String fileName){
+        if(!fileName.toLowerCase().endsWith(".txt")){
+            //Выбрасываем исключение из-за того, что файл не .txt
+            return;
+        }
         ArrayList<Integer[]> edges = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
