@@ -125,20 +125,19 @@ public class PrimAlgorithm {
         return this.history;
     }
 
-    public int saveResult(String fileName) {
+    public void saveResult(String fileName) {
         if(!fileName.toLowerCase().endsWith(".txt")){
             //Выбрасываем исключение из-за того, что файл не .txt
-            return this.mstLen;
         }
         try (java.io.FileWriter writer = new java.io.FileWriter(fileName)) {
             for (Edge edge : this.mstEdges) {
                 Vertex[] v = edge.getVertices();
                 writer.write(v[0].getNumber() + " " + v[1].getNumber() + " " + edge.getWeight() + "\n");
             }
+            writer.write(this.mstLen + "\n");
         } catch (java.io.IOException e) {
             // Выдаём ошибку, что сохранить не удалось
         }
-        return this.mstLen;
     }
 
     public Set<Integer> getVisitedVertices() {
