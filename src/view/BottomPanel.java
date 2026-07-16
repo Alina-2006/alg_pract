@@ -16,6 +16,7 @@ public class BottomPanel extends JPanel {
     private JButton btnReset;
     private JButton btnHistory;
     private JButton btnAuthors;
+    private JLabel resultText;
 
     public BottomPanel() {
         setLayout(new BorderLayout());
@@ -47,8 +48,22 @@ public class BottomPanel extends JPanel {
         btnAuthors.setFont(new Font("Arial", Font.PLAIN, 14));
         rightPanel.add(btnAuthors);
 
+        resultText = new JLabel("");
+        resultText.setFont(new Font("Arial", Font.BOLD, 16));
+        resultText.setForeground(new Color(34, 139, 34));
+        resultText.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 20));
+        add(resultText);
+
         add(leftPanel, BorderLayout.WEST);
         add(rightPanel, BorderLayout.EAST);
+    }
+
+    public void setResultText(String text) {
+        resultText.setText(text);
+    }
+
+    public void clearResult() {
+        resultText.setText("");
     }
 
     private JButton createButton(String text, Color color) {

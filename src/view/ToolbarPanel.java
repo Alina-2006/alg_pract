@@ -150,7 +150,7 @@ public class ToolbarPanel extends JPanel{
     }
 
     // ===== ДИАЛОГИ С ЦЕНТРИРОВАНИЕМ (исправленная версия) =====
-    
+
     public int[] showAddVertexDialog(Window parent) {
         JTextField idField = new JTextField(10);
         JPanel panel = new JPanel(new FlowLayout());
@@ -249,7 +249,7 @@ public class ToolbarPanel extends JPanel{
         return result == JOptionPane.YES_OPTION;
     }
 
-    // ===== МЕТОДЫ ДЛЯ ПЕРЕКЛЮЧЕНИЯ РЕЖИМОВ =====
+    //методы для перекоючения режимов
 
     public void toggleAddVertexMode() {
         setAddVertexMode(!isAddVertexMode);
@@ -288,7 +288,7 @@ public class ToolbarPanel extends JPanel{
         }
     }
 
-    // ===== ГЕТТЕРЫ =====
+    //Гетеры
 
     public JButton getBtnAddVertex() {
         return btnAddVertex;
