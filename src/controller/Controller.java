@@ -6,6 +6,7 @@ import view.*;
 import javax.swing.*;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.*;
 import java.awt.BorderLayout;
 import java.awt.Toolkit;
@@ -63,7 +64,7 @@ public class Controller {
             }
         });
 
-        // клики - кнопка ─
+        // клики - кнопка
         JButton btnAddEdge = toolbar.getBtnAddEdge();
         btnAddEdge.addMouseListener(new MouseAdapter() {
             @Override
@@ -336,6 +337,24 @@ public class Controller {
         if (chooser.showOpenDialog(mainWindow) == JFileChooser.APPROVE_OPTION) {
             try {
                 File file = chooser.getSelectedFile();
+
+                List<String> lines = Files.readAllLines(file.toPath());
+                boolean hasResult = false;
+                int totalWeight = 0;
+
+                if (!lines.isEmpty()) {
+                    String lastLine = lines.get(lines.size() - 1);
+                    try {
+                        totalWeight = Integer.parseInt(lastLine.trim());
+                        hasResult = true; // если последняя строка — число, значит это результат
+                        mainWindow.getBottomPanel().setResultText(
+                            "МОД: " + totalWeight
+                        );
+                    } catch (NumberFormatException e) {
+                        // последняя строка не число — обычный граф
+                    }
+                }
+
                 runner = new Runner(file.getAbsolutePath());
                 graph = runner.getGraph();
 
@@ -345,7 +364,10 @@ public class Controller {
                 mainWindow.getGraphCanvas().setEdges(edgeDataList);
                 mainWindow.getGraphCanvas().reset();
 
-                ToastNotification.showInformation(mainWindow, "Граф загружен: " + file.getName());
+                if (!hasResult) {
+                    ToastNotification.showInformation(mainWindow, "Граф загружен: " + file.getName());
+                }
+                
                 mainWindow.getBottomPanel().setButtonsState(true, false, false, true);
 
             } catch (Exception ex) {
@@ -405,10 +427,10 @@ public class Controller {
             saveCurrentStepSnapshot("Алгоритм запущен");
             currentStepIndex = 0;
             updateViewFromCurrentStep();
-            
+
             mainWindow.getBottomPanel().setButtonsState(false, true, false, true);
             ToastNotification.showInformation(mainWindow, "Алгоритм запущен. Нажимайте 'N' для следующего шага.");
-            
+
         } catch (Exception ex) {
             ToastNotification.showError(mainWindow, "Ошибка запуска: " + ex.getMessage());
         }
@@ -467,10 +489,15 @@ public class Controller {
     }
 
     public void saveResultToFile() {
+        if (algorithm == null) {
+            ToastNotification.showError(mainWindow, "Сначала запустите алгоритм!");
+            return;
+        }
+
         JFileChooser chooser = new JFileChooser();
         if (chooser.showSaveDialog(mainWindow) == JFileChooser.APPROVE_OPTION) {
             try {
-                graph.save(chooser.getSelectedFile().getAbsolutePath());
+                algorithm.saveResult(chooser.getSelectedFile().getAbsolutePath());
                 ToastNotification.showInformation(mainWindow,"Результат сохранён");
             } catch (Exception ex) {
                 ToastNotification.showError(mainWindow,"Ошибка сохранения: " + ex.getMessage());
