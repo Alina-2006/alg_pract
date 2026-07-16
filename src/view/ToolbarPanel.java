@@ -36,49 +36,6 @@ public class ToolbarPanel extends JPanel{
         btnEraser = createToolButton("E");
         btnClearAll = createToolButton("C");
 
-        // подсветка режима
-        /*btnEraser.addActionListener(e -> {
-            isEraserMode = !isEraserMode;
-            btnEraser.setBackground(isEraserMode ? new Color(80, 150, 170) : null);
-        });
-
-        // Выключаем ластик при нажатии других кнопок
-        btnAddVertex.addActionListener(e -> {
-            setAddVertexMode(!isAddVertexMode);
-            if (isAddVertexMode) {
-                setAddEdgeMode(false);
-                setEraserMode(false);
-                selectedVertexForEdge = null;
-            }
-        });
-
-        btnAddEdge.addActionListener(e -> {
-            setAddEdgeMode(!isAddEdgeMode);
-            if (isAddEdgeMode) {
-                setAddVertexMode(false);
-                setEraserMode(false);
-            } else {
-                selectedVertexForEdge = null;
-            }
-        });
-
-        // Кнопка "Ластик"
-        btnEraser.addActionListener(e -> {
-            setEraserMode(!isEraserMode);
-            if (isEraserMode) {
-                setAddVertexMode(false);
-                setAddEdgeMode(false);
-            }
-        });
-
-        // Кнопка "Очистить всё" (не режим, а действие)
-        btnClearAll.addActionListener(e -> {
-            setAddVertexMode(false);
-            setAddEdgeMode(false);
-            setEraserMode(false);
-            selectedVertexForEdge = null;
-        });*/
-
         add(btnAddVertex);
         add(Box.createVerticalStrut(5));
         add(btnAddEdge);
@@ -150,7 +107,7 @@ public class ToolbarPanel extends JPanel{
     }
 
     // ===== ДИАЛОГИ С ЦЕНТРИРОВАНИЕМ (исправленная версия) =====
-    
+
     public int[] showAddVertexDialog(Window parent) {
         JTextField idField = new JTextField(10);
         JPanel panel = new JPanel(new FlowLayout());
@@ -249,7 +206,7 @@ public class ToolbarPanel extends JPanel{
         return result == JOptionPane.YES_OPTION;
     }
 
-    // ===== МЕТОДЫ ДЛЯ ПЕРЕКЛЮЧЕНИЯ РЕЖИМОВ =====
+    //методы для перекоючения режимов
 
     public void toggleAddVertexMode() {
         setAddVertexMode(!isAddVertexMode);
@@ -288,7 +245,7 @@ public class ToolbarPanel extends JPanel{
         }
     }
 
-    // ===== ГЕТТЕРЫ =====
+    //Гетеры
 
     public JButton getBtnAddVertex() {
         return btnAddVertex;

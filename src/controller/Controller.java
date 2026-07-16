@@ -6,6 +6,7 @@ import view.*;
 import javax.swing.*;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.*;
 import java.awt.BorderLayout;
 import java.awt.Toolkit;
@@ -20,6 +21,7 @@ public class Controller {
     private PrimAlgorithm algorithm;
     private List<VertexData> vertexDataList = new ArrayList<>();
     private List<EdgeData> edgeDataList = new ArrayList<>();
+    private Integer firstVertexForEdge = null;
 
     public Controller() {
         mainWindow = new MainWindow();
@@ -90,6 +92,7 @@ public class Controller {
         toolbar.addEraserListener(e -> {
             toolbar.setEraserMode(!toolbar.isEraserMode());
             mainWindow.getGraphCanvas().setEraserMode(toolbar.isEraserMode());
+            firstVertexForEdge = null;
             if (toolbar.isEraserMode()) {
                 toolbar.setAddVertexMode(false);
                 toolbar.setAddEdgeMode(false);
@@ -119,10 +122,12 @@ public class Controller {
         edgeDataList.clear();
         stepHistory.clear();
         currentStepIndex = -1;
+        firstVertexForEdge = null;
         mainWindow.getGraphCanvas().reset();
         mainWindow.getGraphCanvas().setVertices(vertexDataList);
         mainWindow.getGraphCanvas().setEdges(edgeDataList);
         mainWindow.getBottomPanel().setButtonsState(true, false, false, false);
+        mainWindow.getBottomPanel().clearResult(); 
         ToastNotification.showInformation(mainWindow, "Граф очищен");
     }
 
@@ -171,32 +176,31 @@ public class Controller {
         });
 
         canvas.addEdgeCreateListener(new GraphCanvas.EdgeCreateListener() {
-            private Integer firstVertex = null;
 
             @Override
             public void onVertexSelectedForEdge(int vertexId) {
                 if (!toolbar.isAddEdgeMode()) return;
                 
-                if (firstVertex == null) {
-                    firstVertex = vertexId;
+                if (firstVertexForEdge == null) {
+                    firstVertexForEdge = vertexId;
                     ToastNotification.showInformation(mainWindow, 
-                        "Выбрана вершина " + firstVertex + ". Теперь выберите вторую вершину.");
+                        "Выбрана вершина " + firstVertexForEdge + ". Теперь выберите вторую вершину.");
                 } else {
-                    if (firstVertex != vertexId) {
-                        Integer weight = toolbar.showWeightDialog(mainWindow, firstVertex, vertexId);
+                    if (firstVertexForEdge != vertexId) {
+                        Integer weight = toolbar.showWeightDialog(mainWindow, firstVertexForEdge, vertexId);
                         if (weight != null && weight > 0) {
                             if (graph == null) createEmptyGraph();
-                            graph.addEdge(firstVertex, vertexId, weight);
+                            graph.addEdge(firstVertexForEdge, vertexId, weight);
                             updateEdgeDataFromGraph();
                             canvas.setEdges(edgeDataList);
                             canvas.repaint();
                             ToastNotification.showSuccess(mainWindow, 
-                                "Ребро " + firstVertex + "-" + vertexId + " (вес: " + weight + ") добавлено");
+                                "Ребро " + firstVertexForEdge + "-" + vertexId + " (вес: " + weight + ") добавлено");
                         }
                     } else {
                         ToastNotification.showError(mainWindow, "Нельзя соединить вершину с самой собой!");
                     }
-                    firstVertex = null;
+                    firstVertexForEdge = null;  // Сбрасываем
                 }
             }
 
@@ -252,6 +256,7 @@ public class Controller {
         algorithm = null;
         stepHistory.clear();
         currentStepIndex = -1;
+        firstVertexForEdge = null;
         mainWindow.getGraphCanvas().reset();
         mainWindow.getBottomPanel().setButtonsState(true, false, false, true);
     }
@@ -336,6 +341,22 @@ public class Controller {
         if (chooser.showOpenDialog(mainWindow) == JFileChooser.APPROVE_OPTION) {
             try {
                 File file = chooser.getSelectedFile();
+
+                // Читаем файл и проверяем, есть ли вес МОД в конце
+                List<String> lines = Files.readAllLines(file.toPath());
+                boolean hasResult = false;
+                int totalWeight = 0;
+
+                if (!lines.isEmpty()) {
+                    String lastLine = lines.get(lines.size() - 1);
+                    try {
+                        totalWeight = Integer.parseInt(lastLine.trim());
+                        hasResult = true; // если последняя строка — число, значит это результат
+                    } catch (NumberFormatException e) {
+                        // последняя строка не число — обычный граф
+                    }
+                }
+
                 runner = new Runner(file.getAbsolutePath());
                 graph = runner.getGraph();
 
@@ -345,7 +366,21 @@ public class Controller {
                 mainWindow.getGraphCanvas().setEdges(edgeDataList);
                 mainWindow.getGraphCanvas().reset();
 
-                ToastNotification.showInformation(mainWindow, "Граф загружен: " + file.getName());
+                if (hasResult) {
+                    // Устанавливаем текст в BottomPanel (он будет висеть постоянно)
+                    mainWindow.getBottomPanel().setResultText("Вес МОД: " + totalWeight);
+                    
+                    // Дополнительно показываем Toast, но он исчезнет через 2.5 секунды
+                    ToastNotification.showInformation(
+                        mainWindow, 
+                        "Результат МОД загружен!\nВес минимального остовного дерева:: " + totalWeight
+                    );
+                } else {
+                    // Если результата нет - очищаем текст
+                    mainWindow.getBottomPanel().clearResult();
+                    ToastNotification.showInformation(mainWindow, "Граф загружен: " + file.getName());
+                }
+
                 mainWindow.getBottomPanel().setButtonsState(true, false, false, true);
 
             } catch (Exception ex) {
@@ -463,14 +498,20 @@ public class Controller {
     public void onReset() {
         mainWindow.getGraphCanvas().reset();
         mainWindow.getBottomPanel().setButtonsState(true, false, false, true);
+        mainWindow.getBottomPanel().clearResult();
         ToastNotification.showInformation(mainWindow,"Сброшено");
     }
 
     public void saveResultToFile() {
+        if (algorithm == null) {
+            ToastNotification.showError(mainWindow, "Сначала запустите алгоритм!");
+            return;
+        }
+
         JFileChooser chooser = new JFileChooser();
         if (chooser.showSaveDialog(mainWindow) == JFileChooser.APPROVE_OPTION) {
             try {
-                graph.save(chooser.getSelectedFile().getAbsolutePath());
+                algorithm.saveResult(chooser.getSelectedFile().getAbsolutePath());
                 ToastNotification.showInformation(mainWindow,"Результат сохранён");
             } catch (Exception ex) {
                 ToastNotification.showError(mainWindow,"Ошибка сохранения: " + ex.getMessage());

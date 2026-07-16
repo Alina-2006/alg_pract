@@ -1,5 +1,6 @@
 package core;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -47,6 +48,7 @@ public class PrimAlgorithm {
             this.currentEdge.setColor('g');
         }
         if (this.mstVertices.size() == graph.getSize()) {
+            this.currentVertex = null; 
             this.history.add("Минимальное остовное дерево построено, алгоритм завершён");
             return false;
         }
@@ -125,20 +127,19 @@ public class PrimAlgorithm {
         return this.history;
     }
 
-    public int saveResult(String fileName) {
+    public void saveResult(String fileName) throws IOException {
         if(!fileName.toLowerCase().endsWith(".txt")){
-            //Выбрасываем исключение из-за того, что файл не .txt
-            return this.mstLen;
+            throw new IllegalArgumentException("Файл должен иметь расширение .txt");
         }
         try (java.io.FileWriter writer = new java.io.FileWriter(fileName)) {
             for (Edge edge : this.mstEdges) {
                 Vertex[] v = edge.getVertices();
                 writer.write(v[0].getNumber() + " " + v[1].getNumber() + " " + edge.getWeight() + "\n");
             }
+            writer.write(this.mstLen + "\n");
         } catch (java.io.IOException e) {
-            // Выдаём ошибку, что сохранить не удалось
+            throw new IOException("Не удалось сохранить файл: " + e.getMessage(), e);
         }
-        return this.mstLen;
     }
 
     public Set<Integer> getVisitedVertices() {
@@ -191,53 +192,4 @@ public class PrimAlgorithm {
         return keys;
     }
 
-    public Set<Integer> getVisitedVertices() {
-        return mstVertices.keySet();
-    }
-
-    public Integer getCurrentVertex() {
-        return currentVertex != null ? currentVertex.getNumber() : null;
-    }
-
-    public String getCurrentEdgeKey() {
-        if (currentEdge == null) return null;
-        Vertex[] v = currentEdge.getVertices();
-        return v[0].getNumber() + "-" + v[1].getNumber();
-    }
-
-    public String getLastHistoryEntry() {
-        if (history == null || history.isEmpty()) return "";
-        return history.get(history.size() - 1);
-    }
-
-    public HashMap<Integer, Vertex> getMSTVerticesMap() {
-        return mstVertices;
-    }
-
-    public Edge getCurrentEdge() {
-        return currentEdge;
-    }
-
-    public ArrayList<MinHeap> getHeapHistory() {
-        return heapHistory;
-    }
-
-    public boolean canGoBack() {
-        return heapHistory != null && !heapHistory.isEmpty();
-    }
-
-    public Set<Integer> getMSTVerticesSet() {
-        return mstVertices != null ? mstVertices.keySet() : new HashSet<>();
-    }
-
-    public Set<String> getMSTEdgesKeys() {
-        Set<String> keys = new HashSet<>();
-        if (mstEdges != null) {
-            for (Edge edge : mstEdges) {
-                Vertex[] v = edge.getVertices();
-                keys.add(v[0].getNumber() + "-" + v[1].getNumber());
-            }
-        }
-        return keys;
-    }
 }

@@ -333,11 +333,26 @@ public class GraphCanvas extends JPanel {
             g2.drawLine((int) v1.getX(), (int) v1.getY(),
                     (int) v2.getX(), (int) v2.getY());
 
-            int midX = ((int) v1.getX() + (int) v2.getX()) / 2;
-            int midY = ((int) v1.getY() + (int) v2.getY()) / 2;
+            double x1 = v1.getX();
+            double y1 = v1.getY();
+            double x2 = v2.getX();
+            double y2 = v2.getY();
+
+            double midX = (x1 + x2) / 2;
+            double midY = (y1 + y2) / 2;
+            double dx = x2 - x1;
+            double dy = y2 - y1;
+            double length = Math.sqrt(dx * dx + dy * dy);
+            double normalX = -dy / length;
+            double normalY = dx / length;
+
+            int offset = 18;
+            int textX = (int) (midX + normalX * offset);
+            int textY = (int) (midY + normalY * offset);
+
             g2.setColor(Color.BLACK);
             g2.setFont(new Font("Arial", Font.PLAIN, 14));
-            g2.drawString(String.valueOf(edge.getWeight()), midX - 5, midY - 5);
+            g2.drawString(String.valueOf(edge.getWeight()), textX + 5, textY + 5);
         }
     }
 
