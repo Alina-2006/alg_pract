@@ -63,19 +63,19 @@ public class ToastNotification {
             toast.pack();
             Dimension toastSize = toast.getPreferredSize();
             toast.setSize(toastSize);
-            
+
             Point location = owner.getLocationOnScreen();
             Dimension size = owner.getSize();
-            
+
             int x = location.x + size.width - toastSize.width - 20;
             int y = location.y + size.height - toastSize.height - 70;
-            
+
             // Убеждаемся, что уведомление не уходит за экран
             Rectangle screenBounds = GraphicsEnvironment.getLocalGraphicsEnvironment()
                     .getDefaultScreenDevice().getDefaultConfiguration().getBounds();
             x = Math.max(0, Math.min(x, screenBounds.width - toastSize.width));
             y = Math.max(0, Math.min(y, screenBounds.height - toastSize.height));
-            
+
             toast.setLocation(x, y);
         } else {
             toast.setLocationRelativeTo(null);
