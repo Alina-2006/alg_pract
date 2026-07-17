@@ -9,10 +9,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.*;
 import java.awt.BorderLayout;
-import java.awt.Toolkit;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -452,7 +449,7 @@ public class Controller {
             updateViewFromCurrentStep();
             
             mainWindow.getBottomPanel().setButtonsState(false, true, false, true);
-            ToastNotification.showInformation(mainWindow, "Алгоритм запущен. Нажимайте 'N' для следующего шага.");
+            ToastNotification.showInformation(mainWindow, "Алгоритм запущен. Нажимайте '->' для следующего шага.");
             
         } catch (Exception ex) {
             ToastNotification.showError(mainWindow, "Ошибка запуска: " + ex.getMessage());
@@ -529,15 +526,6 @@ public class Controller {
         }
     }
 
-    /*private void showAuthors() {
-        String info = "Разработчики:\n\n" +
-                      "Наумов Матвей — модуль ядра и алгоритма\n" +
-                      "Попова Елизавета — пользовательский интерфейс\n" +
-                      "Резяпова Алина — модуль управления и интеграции\n\n" +
-                      "Бригада: 8";
-        JOptionPane.showMessageDialog(mainWindow, info, "О разработчиках", JOptionPane.INFORMATION_MESSAGE);
-    }*/
-
         private void showAuthors() {
         JDialog dialog = new JDialog(mainWindow, "О разработчиках", true);
         dialog.setLayout(new BorderLayout());
@@ -548,13 +536,11 @@ public class Controller {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
-        // Заголовок
         JLabel title = new JLabel("Разработчики", SwingConstants.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 18));
         panel.add(title);
         panel.add(Box.createVerticalStrut(15));
         
-        // Загружаем картинки
         panel.add(createAuthorRow("memes/mem1.png", "Наумов Матвей", "модуль ядра и алгоритма"));
         panel.add(Box.createVerticalStrut(10));
         panel.add(createAuthorRow("memes/mem2.jpg", "Попова Елизавета", "пользовательский интерфейс"));
@@ -568,7 +554,6 @@ public class Controller {
         brigade.setForeground(new Color(41, 128, 185));
         panel.add(brigade);
         
-        // Кнопка закрыть
         JButton closeBtn = new JButton("Закрыть");
         closeBtn.addActionListener(e -> dialog.dispose());
         JPanel btnPanel = new JPanel();
@@ -582,7 +567,6 @@ public class Controller {
     private JPanel createAuthorRow(String imagePath, String name, String role) {
         JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
 
-        // Загружаем картинку
         ImageIcon icon = null;
         try {
             java.net.URL imgUrl = getClass().getResource(imagePath);
@@ -592,7 +576,7 @@ public class Controller {
                 icon = new ImageIcon(scaledImg);
             }
         } catch (Exception e) {
-            // Если картинки нет - создаём заглушку
+            // заглушкf
             icon = createDefaultAvatar(name);
         }
         
@@ -615,17 +599,14 @@ public class Controller {
     }
 
     private ImageIcon createDefaultAvatar(String name) {
-        // Создаём цветной круг с инициалом
         int size = 50;
         BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = image.createGraphics();
         
-        // Рисуем круг
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(new Color(100, 149, 237));
         g2.fillOval(0, 0, size, size);
         
-        // Рисуем инициал
         g2.setColor(Color.WHITE);
         g2.setFont(new Font("Arial", Font.BOLD, 24));
         String initial = name.substring(0, 1);
