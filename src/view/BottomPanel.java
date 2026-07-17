@@ -28,10 +28,10 @@ public class BottomPanel extends JPanel {
     private void initButtons() {
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
-        btnStart = createButton("S", Color.GREEN);
-        btnPrevStep = createButton("P", Color.GREEN);
-        btnNextStep = createButton("N", Color.GREEN);
-        btnReset = createButton("R", Color.RED);
+        btnStart = createButton("", "icons/Play.png");
+        btnPrevStep = createButton("", "icons/Prev.png");
+        btnNextStep = createButton("", "icons/Next.png");
+        btnReset = createButton("", "icons/STOP, ri~de.png");
 
         leftPanel.add(btnStart);
         leftPanel.add(btnPrevStep);
@@ -66,11 +66,19 @@ public class BottomPanel extends JPanel {
         resultText.setText("");
     }
 
-    private JButton createButton(String text, Color color) {
+    private JButton createButton(String text, String iconPath) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.BOLD, 16));
-        button.setForeground(color);
-        button.setPreferredSize(new Dimension(60, 35));
+        ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
+
+        Image img = icon.getImage();
+        button.setIcon(new ImageIcon(img));
+
+        button.setPreferredSize(new Dimension(50, 50));
+        button.setMaximumSize(new Dimension(50, 50));
+        button.setContentAreaFilled(true);
+        button.setOpaque(true);
+        button.setBorderPainted(true);
+        button.setFocusPainted(false);
         return button;
     }
 

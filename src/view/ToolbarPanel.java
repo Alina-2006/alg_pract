@@ -31,10 +31,10 @@ public class ToolbarPanel extends JPanel{
     }
 
     private void initButtons() {
-        btnAddVertex = createToolButton("B");
-        btnAddEdge = createToolButton("─");
-        btnEraser = createToolButton("E");
-        btnClearAll = createToolButton("C");
+        btnAddVertex = createToolButton("", "icons/Vertex.png");
+        btnAddEdge = createToolButton("","icons/Edge.png" );
+        btnEraser = createToolButton("", "icons/Eraser.png");
+        btnClearAll = createToolButton("", "icons/Clear.png");
 
         add(btnAddVertex);
         add(Box.createVerticalStrut(5));
@@ -46,11 +46,21 @@ public class ToolbarPanel extends JPanel{
     }
 
     //создание аккуратных одинаково оформленных кнопок
-    private  JButton createToolButton(String text) {
+    private  JButton createToolButton(String text, String iconPath) {
         JButton button = new JButton(text);
+
+        ImageIcon icon = new ImageIcon(getClass().getResource(iconPath));
+
+        Image img = icon.getImage();
+        button.setIcon(new ImageIcon(img));
+
         button.setPreferredSize(new Dimension(50, 50));
         button.setMaximumSize(new Dimension(50, 50));
-        button.setFont(new Font("Arial", Font.BOLD, 20));
+        button.setContentAreaFilled(true);
+        button.setOpaque(true);
+        button.setBorderPainted(true);
+        button.setFocusPainted(false);
+
         return button;
     }
 

@@ -14,6 +14,16 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.FlowLayout;
+import java.awt.image.BufferedImage;
+import java.awt.RenderingHints;
+
 public class Controller {
     private MainWindow mainWindow;
     private Runner runner;
@@ -519,13 +529,113 @@ public class Controller {
         }
     }
 
-    private void showAuthors() {
+    /*private void showAuthors() {
         String info = "Разработчики:\n\n" +
                       "Наумов Матвей — модуль ядра и алгоритма\n" +
                       "Попова Елизавета — пользовательский интерфейс\n" +
                       "Резяпова Алина — модуль управления и интеграции\n\n" +
                       "Бригада: 8";
         JOptionPane.showMessageDialog(mainWindow, info, "О разработчиках", JOptionPane.INFORMATION_MESSAGE);
+    }*/
+
+        private void showAuthors() {
+        JDialog dialog = new JDialog(mainWindow, "О разработчиках", true);
+        dialog.setLayout(new BorderLayout());
+        dialog.setSize(600, 600);
+        dialog.setLocationRelativeTo(mainWindow);
+        
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        // Заголовок
+        JLabel title = new JLabel("Разработчики", SwingConstants.CENTER);
+        title.setFont(new Font("Arial", Font.BOLD, 18));
+        panel.add(title);
+        panel.add(Box.createVerticalStrut(15));
+        
+        // Загружаем картинки
+        panel.add(createAuthorRow("memes/mem1.png", "Наумов Матвей", "модуль ядра и алгоритма"));
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(createAuthorRow("memes/mem2.jpg", "Попова Елизавета", "пользовательский интерфейс"));
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(createAuthorRow("memes/mem3.jpg", "Резяпова Алина", "модуль управления и интеграции"));
+        panel.add(Box.createVerticalStrut(15));
+        
+        
+        JLabel brigade = new JLabel("Бригада: 8", SwingConstants.CENTER);
+        brigade.setFont(new Font("Arial", Font.BOLD, 14));
+        brigade.setForeground(new Color(41, 128, 185));
+        panel.add(brigade);
+        
+        // Кнопка закрыть
+        JButton closeBtn = new JButton("Закрыть");
+        closeBtn.addActionListener(e -> dialog.dispose());
+        JPanel btnPanel = new JPanel();
+        btnPanel.add(closeBtn);
+        
+        dialog.add(panel, BorderLayout.CENTER);
+        dialog.add(btnPanel, BorderLayout.SOUTH);
+        dialog.setVisible(true);
+    }
+
+    private JPanel createAuthorRow(String imagePath, String name, String role) {
+        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 10));
+
+        // Загружаем картинку
+        ImageIcon icon = null;
+        try {
+            java.net.URL imgUrl = getClass().getResource(imagePath);
+            if (imgUrl != null) {
+                Image img = new ImageIcon(imgUrl).getImage();
+                Image scaledImg = img.getScaledInstance(80, 80, Image.SCALE_SMOOTH);
+                icon = new ImageIcon(scaledImg);
+            }
+        } catch (Exception e) {
+            // Если картинки нет - создаём заглушку
+            icon = createDefaultAvatar(name);
+        }
+        
+        JLabel avatar = new JLabel(icon != null ? icon : new ImageIcon());
+        avatar.setPreferredSize(new Dimension(85, 85));
+        row.add(avatar);
+        
+        JPanel textPanel = new JPanel();
+        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
+        JLabel nameLabel = new JLabel(name);
+        nameLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        JLabel roleLabel = new JLabel(role);
+        roleLabel.setFont(new Font("Arial", Font.PLAIN, 13));
+        roleLabel.setForeground(Color.GRAY);
+        textPanel.add(nameLabel);
+        textPanel.add(roleLabel);
+        row.add(textPanel);
+        
+        return row;
+    }
+
+    private ImageIcon createDefaultAvatar(String name) {
+        // Создаём цветной круг с инициалом
+        int size = 50;
+        BufferedImage image = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = image.createGraphics();
+        
+        // Рисуем круг
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2.setColor(new Color(100, 149, 237));
+        g2.fillOval(0, 0, size, size);
+        
+        // Рисуем инициал
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.BOLD, 24));
+        String initial = name.substring(0, 1);
+        FontMetrics fm = g2.getFontMetrics();
+        int x = (size - fm.stringWidth(initial)) / 2;
+        int y = (size + fm.getAscent()) / 2 - 2;
+        g2.drawString(initial, x, y);
+        
+        g2.dispose();
+        return new ImageIcon(image);
     }
 
     //////////
